@@ -133,5 +133,9 @@ public class CustomTextRenderer implements TextRenderer {
 
     public void destroy() {
         mesh.destroy();
+
+        for (Font font : this.fonts) {
+            font.texture.clearGlId();
+        }
     }
 }
