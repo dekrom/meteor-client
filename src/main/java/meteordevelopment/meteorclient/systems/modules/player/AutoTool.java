@@ -143,6 +143,7 @@ public class AutoTool extends Module {
     @EventHandler(priority = EventPriority.HIGH)
     private void onStartBreakingBlock(StartBreakingBlockEvent event) {
         if (Modules.get().isActive(InfinityMiner.class)) return;
+        if (mc.player.isCreative()) return;
 
         // Get blockState
         BlockState blockState = mc.world.getBlockState(event.blockPos);
@@ -224,10 +225,10 @@ public class AutoTool extends Module {
     public static boolean isTool(Item item) {
         return item instanceof MiningToolItem || item instanceof ShearsItem;
     }
+
     public static boolean isTool(ItemStack itemStack) {
         return isTool(itemStack.getItem());
     }
-
 
     private static boolean isFortunable(Block block) {
         if (block == Blocks.ANCIENT_DEBRIS) return false;
