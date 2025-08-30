@@ -162,7 +162,7 @@ public class StorageESP extends Module {
     private final Setting<SettingColor> openedColor = sgOpened.add(new ColorSetting.Builder()
         .name("opened-color")
         .description("Optional setting to change colors of opened chests, as opposed to not rendering. Disabled at zero opacity.")
-        .defaultValue(new SettingColor(203, 90, 203, 0)) /// TRANSPARENT BY DEFAULT.
+        .defaultValue(new SettingColor(203, 90, 203, 0)) // TRANSPARENT BY DEFAULT.
         .build()
     );
 
@@ -263,22 +263,28 @@ public class StorageESP extends Module {
                 double a = 1;
                 if (dist <= fadeDistance.get() * fadeDistance.get()) a = dist / (fadeDistance.get() * fadeDistance.get());
 
+                if (a < 0.075) continue;
+
                 int prevLineA = lineColor.a;
                 int prevSideA = sideColor.a;
 
                 lineColor.a *= a;
                 sideColor.a *= a;
 
-                if (tracers.get() && a >= 0.075) {
+                if (tracers.get()) {
                     event.renderer.line(RenderUtils.center.x, RenderUtils.center.y, RenderUtils.center.z, blockEntity.getPos().getX() + 0.5, blockEntity.getPos().getY() + 0.5, blockEntity.getPos().getZ() + 0.5, lineColor);
                 }
 
-                if (mode.get() == Mode.Box && a >= 0.075) renderBox(event, blockEntity);
+                if (mode.get() == Mode.Box) {
+                    renderBox(event, blockEntity);
+                }
+
+                if (mode.get() == Mode.Shader) {
+                    renderShader(event, blockEntity);
+                }
 
                 lineColor.a = prevLineA;
                 sideColor.a = prevSideA;
-
-                if (mode.get() == Mode.Shader) renderShader(event, blockEntity);
 
                 count++;
             }
