@@ -42,3 +42,5 @@ accessible field net/minecraft/entity/projectile/FishingBobberEntity state Lnet/
 # Item Physics
 accessible field net/minecraft/client/render/item/ItemRenderState layers [Lnet/minecraft/client/render/item/ItemRenderState$LayerRenderState;
 accessible field net/minecraft/client/render/item/ItemRenderState layerCount I
+
+accessible   method   net/minecraft/client/network/ClientPlayerInteractionManager sendSequencedPacket (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/network/SequencedPacketCreator;)V
