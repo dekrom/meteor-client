@@ -40,3 +40,5 @@ accessible field net/minecraft/client/render/item/ItemRenderState layers [Lnet/m
 accessible field net/minecraft/client/render/item/ItemRenderState layerCount I
 accessible field net/minecraft/client/render/item/ItemRenderState$LayerRenderState model Lnet/minecraft/client/render/model/BakedModel;
 accessible method net/minecraft/client/render/item/ItemRenderState$LayerRenderState getTransformation ()Lnet/minecraft/client/render/model/json/Transformation;
+
+accessible   method   net/minecraft/client/network/ClientPlayerInteractionManager sendSequencedPacket (Lnet/minecraft/client/world/ClientWorld;Lnet/minecraft/client/network/SequencedPacketCreator;)V
