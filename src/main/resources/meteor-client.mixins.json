@@ -72,6 +72,7 @@
     "CrossbowItemAccessor",
     "DefaultSkinHelperMixin",
     "DisconnectedScreenMixin",
+    "DownloaderMixin",
     "DrawContextMixin",
     "ElytraFeatureRendererMixin",
     "EnchantingTableBlockEntityRendererMixin",
