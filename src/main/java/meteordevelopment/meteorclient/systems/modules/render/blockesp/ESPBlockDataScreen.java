@@ -11,18 +11,27 @@ import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.block.Block;
+import org.jetbrains.annotations.Nullable;
 
 public class ESPBlockDataScreen extends WindowScreen {
     private final ESPBlockData blockData;
-    private final Block block;
-    private final BlockDataSetting<ESPBlockData> setting;
+    private final Setting<?> setting;
+    private final @Nullable Runnable firstChangeConsumer;
 
     public ESPBlockDataScreen(GuiTheme theme, ESPBlockData blockData, Block block, BlockDataSetting<ESPBlockData> setting) {
+        this(theme, blockData, setting, () -> setting.get().put(block, blockData));
+    }
+
+    public ESPBlockDataScreen(GuiTheme theme, ESPBlockData blockData, GenericSetting<ESPBlockData> setting) {
+        this(theme, blockData, setting, null);
+    }
+
+    private ESPBlockDataScreen(GuiTheme theme, ESPBlockData blockData, Setting<?> setting, @Nullable Runnable firstChangeConsumer) {
         super(theme, "Configure Block");
 
         this.blockData = blockData;
-        this.block = block;
         this.setting = setting;
+        this.firstChangeConsumer = firstChangeConsumer;
     }
 
     @Override
@@ -38,7 +47,7 @@ public class ESPBlockDataScreen extends WindowScreen {
             .onModuleActivated(shapeModeSetting -> shapeModeSetting.set(blockData.shapeMode))
             .onChanged(shapeMode -> {
                 blockData.shapeMode = shapeMode;
-                changed(blockData, block, setting);
+                onChanged();
             })
             .build()
         );
@@ -50,7 +59,7 @@ public class ESPBlockDataScreen extends WindowScreen {
             .onModuleActivated(settingColorSetting -> settingColorSetting.set(blockData.lineColor))
             .onChanged(settingColor -> {
                 blockData.lineColor.set(settingColor);
-                changed(blockData, block, setting);
+                onChanged();
             })
             .build()
         );
@@ -62,7 +71,7 @@ public class ESPBlockDataScreen extends WindowScreen {
             .onModuleActivated(settingColorSetting -> settingColorSetting.set(blockData.sideColor))
             .onChanged(settingColor -> {
                 blockData.sideColor.set(settingColor);
-                changed(blockData, block, setting);
+                onChanged();
             })
             .build()
         );
@@ -74,7 +83,7 @@ public class ESPBlockDataScreen extends WindowScreen {
             .onModuleActivated(booleanSetting -> booleanSetting.set(blockData.tracer))
             .onChanged(aBoolean -> {
                 blockData.tracer = aBoolean;
-                changed(blockData, block, setting);
+                onChanged();
             })
             .build()
         );
@@ -86,7 +95,7 @@ public class ESPBlockDataScreen extends WindowScreen {
             .onModuleActivated(settingColorSetting -> settingColorSetting.set(blockData.tracerColor))
             .onChanged(settingColor -> {
                 blockData.tracerColor = settingColor;
-                changed(blockData, block, setting);
+                onChanged();
             })
             .build()
         );
@@ -95,12 +104,12 @@ public class ESPBlockDataScreen extends WindowScreen {
         add(theme.settings(settings)).expandX();
     }
 
-    private void changed(ESPBlockData blockData, Block block, BlockDataSetting<ESPBlockData> setting) {
-        if (!blockData.isChanged() && block != null && setting != null) {
-            setting.get().put(block, blockData);
-            setting.onChanged();
+    private void onChanged() {
+        if (!blockData.isChanged() && firstChangeConsumer != null) {
+            firstChangeConsumer.run();
         }
 
+        setting.onChanged();
         blockData.changed();
     }
 }
