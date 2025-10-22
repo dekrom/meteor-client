@@ -5,7 +5,8 @@
   "plugin": "meteordevelopment.meteorclient.MixinPlugin",
   "client": [
     "AbstractBlockRenderContextMixin",
-    "AoCalculatorMixin"
+    "AoCalculatorMixin",
+    "BlockRenderInfoMixin"
   ],
   "injectors": {
     "defaultRequire": 1
