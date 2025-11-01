@@ -12,6 +12,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import meteordevelopment.meteorclient.MeteorClient;
+import meteordevelopment.meteorclient.events.entity.player.DoItemUseEvent;
 import meteordevelopment.meteorclient.events.entity.player.ItemUseCrosshairTargetEvent;
 import meteordevelopment.meteorclient.events.game.GameLeftEvent;
 import meteordevelopment.meteorclient.events.game.OpenScreenEvent;
@@ -174,6 +175,11 @@ public abstract class MinecraftClientMixin implements IMinecraftClient {
         }
     }
 
+    @Inject(method = "doItemUse", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/Hand;values()[Lnet/minecraft/util/Hand;"), cancellable = true)
+    private void onDoItemUseBeforeHands(CallbackInfo ci) {
+        if (MeteorClient.EVENT_BUS.post(DoItemUseEvent.get()).isCancelled()) ci.cancel();
+    }
+
     @ModifyExpressionValue(method = "doItemUse", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MinecraftClient;crosshairTarget:Lnet/minecraft/util/hit/HitResult;", ordinal = 1))
     private HitResult doItemUseMinecraftClientCrosshairTargetProxy(HitResult original) {
         return MeteorClient.EVENT_BUS.post(ItemUseCrosshairTargetEvent.get(original)).target;
@@ -252,6 +258,7 @@ public abstract class MinecraftClientMixin implements IMinecraftClient {
     private void handleInputEventsInjectStopUsingItem(CallbackInfo info) {
         if (Modules.get().get(Multitask.class).attackingEntities() && player.isUsingItem()) {
             if (!options.useKey.isPressed() && HB$stopUsingItem()) interactionManager.stopUsingItem(player);
+            //noinspection StatementWithEmptyBody
             while (options.useKey.wasPressed());
         }
     }
