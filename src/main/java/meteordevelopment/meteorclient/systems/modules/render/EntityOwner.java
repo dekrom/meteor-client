@@ -22,6 +22,7 @@ import meteordevelopment.orbit.EventHandler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
 import org.joml.Vector3d;
 
 import java.util.HashMap;
@@ -60,6 +61,7 @@ public class EntityOwner extends Module {
             UUID ownerUuid;
 
             if (entity instanceof TameableEntity tameable) ownerUuid = tameable.getOwnerUuid();
+            else if (entity instanceof EnderPearlEntity pearl) ownerUuid = pearl.getOwner() == null ? null : pearl.getOwner().getUuid();
             else continue;
 
             if (ownerUuid != null) {
