@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -27,6 +28,7 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.Handle;
 import net.minecraft.client.util.ObjectAllocator;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -45,7 +47,15 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(WorldRenderer.class)
 public abstract class WorldRendererMixin implements IWorldRenderer {
+    @Unique private NoRender noRender;
     @Unique private ESP esp;
+
+    // if a world exists, meteor is initialised
+    @Inject(method = "setWorld", at = @At("TAIL"))
+    private void onSetWorld(ClientWorld world, CallbackInfo ci) {
+        esp = Modules.get().get(ESP.class);
+        noRender = Modules.get().get(NoRender.class);
+    }
 
     @Shadow
     protected abstract void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers);
@@ -69,17 +79,17 @@ public abstract class WorldRendererMixin implements IWorldRenderer {
 
     @WrapWithCondition(method = "method_62216", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WeatherRendering;renderPrecipitation(Lnet/minecraft/world/World;Lnet/minecraft/client/render/VertexConsumerProvider;IFLnet/minecraft/util/math/Vec3d;)V"))
     private boolean shouldRenderPrecipitation(WeatherRendering instance, World world, VertexConsumerProvider vertexConsumers, int ticks, float tickProgress, Vec3d pos) {
-        return !Modules.get().get(NoRender.class).noWeather();
+        return !noRender.noWeather();
     }
 
     @WrapWithCondition(method = "method_62216", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldBorderRendering;render(Lnet/minecraft/world/border/WorldBorder;Lnet/minecraft/util/math/Vec3d;DD)V"))
     private boolean shouldRenderWorldBorder(WorldBorderRendering instance, WorldBorder border, Vec3d cameraPos, double viewDistanceBlocks, double farPlaneDistance) {
-        return !Modules.get().get(NoRender.class).noWorldBorder();
+        return !noRender.noWorldBorder();
     }
 
 	@Inject(method = "hasBlindnessOrDarkness(Lnet/minecraft/client/render/Camera;)Z", at = @At("HEAD"), cancellable = true)
 	private void hasBlindnessOrDarkness(Camera camera, CallbackInfoReturnable<Boolean> info) {
-		if (Modules.get().get(NoRender.class).noBlindness() || Modules.get().get(NoRender.class).noDarkness()) info.setReturnValue(null);
+		if (noRender.noBlindness() || noRender.noDarkness()) info.setReturnValue(null);
 	}
 
     // Entity Shaders
@@ -92,7 +102,7 @@ public abstract class WorldRendererMixin implements IWorldRenderer {
     @Inject(method = "renderEntity", at = @At("HEAD"))
     private void renderEntity(Entity entity, double cameraX, double cameraY, double cameraZ, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, CallbackInfo info) {
         draw(entity, cameraX, cameraY, cameraZ, tickDelta, vertexConsumers, matrices, PostProcessShaders.CHAMS, Color.WHITE);
-        draw(entity, cameraX, cameraY, cameraZ, tickDelta, vertexConsumers, matrices, PostProcessShaders.ENTITY_OUTLINE, Modules.get().get(ESP.class).getColor(entity));
+        draw(entity, cameraX, cameraY, cameraZ, tickDelta, vertexConsumers, matrices, PostProcessShaders.ENTITY_OUTLINE, esp.getColor(entity));
     }
 
     @Unique
@@ -109,6 +119,12 @@ public abstract class WorldRendererMixin implements IWorldRenderer {
         }
     }
 
+    @ModifyExpressionValue(method = "getEntitiesToRender", at = @At(value= "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;isRenderingReady(Lnet/minecraft/util/math/BlockPos;)Z"))
+    boolean getEntitiesToRenderIsRenderingReady(boolean original) {
+        if (esp.forceRender()) return true;
+        return original;
+    }
+
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V"))
     private void onRender(CallbackInfo ci) {
         PostProcessShaders.endRender();
@@ -116,9 +132,9 @@ public abstract class WorldRendererMixin implements IWorldRenderer {
 
     @WrapOperation(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;setColor(IIII)V"))
     private void setGlowColor(OutlineVertexConsumerProvider instance, int red, int green, int blue, int alpha, Operation<Void> original, @Local LocalRef<Entity> entity) {
-        if (!getESP().isGlow() || getESP().shouldSkip(entity.get())) original.call(instance, red, green, blue, alpha);
+        if (!esp.isGlow() || esp.shouldSkip(entity.get())) original.call(instance, red, green, blue, alpha);
         else {
-            Color color = getESP().getColor(entity.get());
+            Color color = esp.getColor(entity.get());
 
             if (color == null) original.call(instance, red, green, blue, alpha);
             else instance.setColor(color.r, color.g, color.b, color.a);
@@ -128,15 +144,6 @@ public abstract class WorldRendererMixin implements IWorldRenderer {
     @Inject(method = "onResized", at = @At("HEAD"))
     private void onResized(int width, int height, CallbackInfo info) {
         PostProcessShaders.onResized(width, height);
-    }
-
-    @Unique
-    private ESP getESP() {
-        if (esp == null) {
-            esp = Modules.get().get(ESP.class);
-        }
-
-        return esp;
     }
 
     // IWorldRenderer
