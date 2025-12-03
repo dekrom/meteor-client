@@ -281,6 +281,7 @@ public class ColorSettingScreen extends WindowScreen {
 
             if (mouseOver) {
                 dragging = true;
+                setFocused(true);
 
                 handleX = lastMouseX - x;
                 handleY = lastMouseY - y;
@@ -296,6 +297,7 @@ public class ColorSettingScreen extends WindowScreen {
         public boolean onMouseReleased(double mouseX, double mouseY, int button) {
             if (dragging) {
                 dragging = false;
+                setFocused(false);
             }
 
             return false;
@@ -553,6 +555,7 @@ public class ColorSettingScreen extends WindowScreen {
 
             if (mouseOver) {
                 dragging = true;
+                setFocused(true);
 
                 handleX = lastMouseX - x;
                 calculateHueAngleFromHandleX();
@@ -568,6 +571,7 @@ public class ColorSettingScreen extends WindowScreen {
         public boolean onMouseReleased(double mouseX, double mouseY, int button) {
             if (dragging) {
                 dragging = false;
+                setFocused(false);
             }
 
             return mouseOver;
