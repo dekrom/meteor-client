@@ -36,7 +36,6 @@ public abstract class WTextBox extends WWidget {
 
     protected final Renderer renderer;
 
-    protected boolean focused;
     protected DoubleList textWidths = new DoubleArrayList();
 
     protected int cursor;
@@ -666,10 +665,7 @@ public abstract class WTextBox extends WWidget {
         cursorChanged();
     }
 
-    public boolean isFocused() {
-        return focused;
-    }
-
+    @Override
     public void setFocused(boolean focused) {
         if (this.focused && !focused && actionOnUnfocused != null) actionOnUnfocused.run();
 
