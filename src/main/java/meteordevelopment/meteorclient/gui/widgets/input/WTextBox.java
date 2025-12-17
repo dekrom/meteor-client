@@ -349,7 +349,11 @@ public abstract class WTextBox extends WWidget {
                 else if (altShift) {
                     if (cursor == selectionEnd && cursor != selectionStart) {
                         cursor -= countToNextSpace(true);
-                        selectionEnd = cursor;
+                        if (cursor >= selectionStart) selectionEnd = cursor;
+                        else {
+                            selectionEnd = selectionStart;
+                            selectionStart = cursor;
+                        }
                     }
                     else {
                         cursor -= countToNextSpace(true);
@@ -408,7 +412,11 @@ public abstract class WTextBox extends WWidget {
                 else if (altShift) {
                     if (cursor == selectionStart && cursor != selectionEnd) {
                         cursor += countToNextSpace(false);
-                        selectionStart = cursor;
+                        if (cursor <= selectionEnd) selectionStart = cursor;
+                        else {
+                            selectionStart = selectionEnd;
+                            selectionEnd = cursor;
+                        }
                     }
                     else {
                         cursor += countToNextSpace(false);
