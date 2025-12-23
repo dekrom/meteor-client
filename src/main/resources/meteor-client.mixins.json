@@ -15,6 +15,7 @@
     "AbstractSignEditScreenAccessor",
     "AbstractSignEditScreenMixin",
     "ArmorFeatureRendererMixin",
+    "ArmorStandEntityRendererMixin",
     "BackgroundRendererMixin",
     "BakedQuadMixin",
     "BannerBlockEntityRendererMixin",
