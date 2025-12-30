@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -68,7 +67,7 @@ public class Waypoints extends System<Waypoints> implements Iterable<Waypoint> {
                     AbstractTexture texture = new NativeImageBackedTexture(null, NativeImage.read(new FileInputStream(file)));
                     icons.put(name, texture);
                 }
-                catch (IOException e) {
+                catch (Exception e) {
                     MeteorClient.LOG.error("Failed to read a waypoint icon", e);
                 }
             }
