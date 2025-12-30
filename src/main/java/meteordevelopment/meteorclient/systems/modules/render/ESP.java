@@ -323,7 +323,7 @@ public class ESP extends Module {
     }
 
     private double getFadeAlpha(Entity entity) {
-        double dist = PlayerUtils.squaredDistanceToCamera(entity.getX() + entity.getWidth() / 2, entity.getY() + entity.getEyeHeight(entity.getPose()), entity.getZ() + entity.getWidth() / 2);
+        double dist = PlayerUtils.squaredDistanceToCamera(entity.getX(), entity.getY() + entity.getEyeHeight(entity.getPose()), entity.getZ());
         double fadeDist = fadeDistance.get();
         double alpha = 1;
         if (dist <= fadeDist * fadeDist) alpha = Math.sqrt(dist) / fadeDist;
