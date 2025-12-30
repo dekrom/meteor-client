@@ -11,6 +11,7 @@ import com.mojang.blaze3d.textures.FilterMode;
 import com.mojang.blaze3d.textures.TextureFormat;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.game.ResourcePacksReloadedEvent;
+import meteordevelopment.meteorclient.renderer.MeteorRenderPipelines;
 import meteordevelopment.meteorclient.renderer.Texture;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.render.Chams;
@@ -36,6 +37,7 @@ public class ChamsShader extends EntityShader {
     private static Chams chams;
 
     public ChamsShader() {
+        super(MeteorRenderPipelines.POST_IMAGE);
         MeteorClient.EVENT_BUS.subscribe(ChamsShader.class);
     }
 
