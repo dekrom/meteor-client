@@ -297,13 +297,14 @@ public class StorageESP extends Module {
         }
 
         if (mode.get() == Mode.Shader && count > 0) {
-            PostProcessShaders.STORAGE_OUTLINE.endRender(() -> MeshRenderer.begin()
-                .attachments(mc.getFramebuffer())
+            MeshRenderer.begin()
+                .attachments(PostProcessShaders.STORAGE_OUTLINE.framebuffer)
                 .clearColor(Color.CLEAR)
                 .pipeline(MeteorRenderPipelines.WORLD_COLORED)
                 .mesh(mesh, event.matrices)
-                .end()
-            );
+                .end();
+
+            PostProcessShaders.STORAGE_OUTLINE.render();
         }
     }
 

@@ -138,7 +138,7 @@ public abstract class WorldRendererMixin implements IWorldRenderer {
 
     @Inject(method = "method_62214", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;draw()V"))
     private void onRender(CallbackInfo ci) {
-        PostProcessShaders.endRender();
+        PostProcessShaders.submitEntityVertices();
     }
 
     @WrapOperation(method = "renderEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/OutlineVertexConsumerProvider;setColor(IIII)V"))
