@@ -146,6 +146,8 @@ public class ProfilesTab extends Tab {
 
         @Override
         public void tick() {
+            super.tick();
+
             profile.settings.tick(settingsContainer, theme);
         }
 
