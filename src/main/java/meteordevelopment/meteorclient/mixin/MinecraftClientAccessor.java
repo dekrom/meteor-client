@@ -84,4 +84,7 @@ public interface MinecraftClientAccessor {
     @Mutable
     @Accessor("gameProfileFuture")
     void meteor$setGameProfileFuture(CompletableFuture<ProfileResult> future);
+
+    @Invoker("handleInputEvents")
+    void meteor$handleInputEvents();
 }
