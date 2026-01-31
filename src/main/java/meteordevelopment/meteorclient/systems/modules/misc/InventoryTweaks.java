@@ -78,6 +78,14 @@ public class InventoryTweaks extends Module {
         .build()
     );
 
+    private final Setting<Boolean> frameInput = sgGeneral.add(new BoolSetting.Builder()
+        .name("frame-input-handling")
+        .description("Changes input handling to work every frame instead of every tick. A very minor effect but may\n" +
+            "make inputs feel smoother, especially in laggy environments. Will flag anticheats that check packet order (Grim).")
+        .defaultValue(false)
+        .build()
+    );
+
     // Sorting
 
     private final Setting<Boolean> sortingEnabled = sgSorting.add(new BoolSetting.Builder()
@@ -465,6 +473,10 @@ public class InventoryTweaks extends Module {
 
     public boolean armorStorage() {
         return isActive() && armorStorage.get();
+    }
+
+    public boolean frameInput() {
+        return isActive() && frameInput.get();
     }
 
     public boolean canSteal(ScreenHandler handler) {

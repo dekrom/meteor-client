@@ -157,6 +157,7 @@
     "RegistriesMixin",
     "ReloadStateAccessor",
     "RenderLayersMixin",
+    "RenderSystemMixin",
     "RenderTickCounterDynamicMixin",
     "ResourceReloadLoggerAccessor",
     "ScreenMixin",
