@@ -25,7 +25,6 @@ public abstract class WView extends WVerticalList {
     private boolean moveAfterPositionWidgets;
 
     protected boolean handleMouseOver;
-    protected boolean handlePressed;
 
     @Override
     public void init() {
@@ -76,7 +75,7 @@ public abstract class WView extends WVerticalList {
     @Override
     public boolean onMouseClicked(double mouseX, double mouseY, int button, boolean used) {
         if (handleMouseOver && button == GLFW_MOUSE_BUTTON_LEFT && !used) {
-            handlePressed = true;
+            setFocused(true);
             return true;
         }
 
@@ -85,7 +84,7 @@ public abstract class WView extends WVerticalList {
 
     @Override
     public boolean onMouseReleased(double mouseX, double mouseY, int button) {
-        if (handlePressed) handlePressed = false;
+        if (focused) setFocused(false);
 
         return false;
     }
@@ -103,7 +102,7 @@ public abstract class WView extends WVerticalList {
             }
         }
 
-        if (handlePressed) {
+        if (focused) {
             double preScroll = scroll;
             double mouseDelta = mouseY - lastMouseY;
 
@@ -122,9 +121,13 @@ public abstract class WView extends WVerticalList {
     @Override
     public boolean onMouseScrolled(double amount) {
         if (!scrollOnlyWhenMouseOver || mouseOver) {
+            double max = actualHeight - height;
+
             targetScroll -= Math.round(theme.scale(amount * 40));
-            targetScroll = MathHelper.clamp(targetScroll, 0, actualHeight - height);
-            return true;
+            targetScroll = MathHelper.clamp(targetScroll, 0, max);
+
+            // Only consume the event if the view actually scrolled, otherwise propagate to parent.
+            return targetScroll > 0 && targetScroll < max;
         }
 
         return false;
@@ -163,7 +166,13 @@ public abstract class WView extends WVerticalList {
 
     @Override
     protected boolean propagateEvents(WWidget widget) {
-        return (mouseOver && isWidgetInView(widget)) || widget.isFocused();
+        if (widget.isFocused()) return true;
+
+        // Propagate to any visible view, to allow inputs even when not hovered
+        if (widget instanceof WView) return isWidgetInView(widget);
+
+        // Propagate to any visible widget while the view is hovered
+        return mouseOver && isWidgetInView(widget);
     }
 
     protected double handleWidth() {
