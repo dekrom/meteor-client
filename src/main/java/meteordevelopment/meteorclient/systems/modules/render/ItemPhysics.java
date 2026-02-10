@@ -49,7 +49,7 @@ public class ItemPhysics extends Module {
     private void onRenderItemEntity(RenderItemEntityEvent event) {
         event.cancel();
 
-        if (event.renderState.itemRenderState.isEmpty())
+        if (event.renderState.itemRenderState.isEmpty() || event.itemEntity == null)
             return;
 
         MatrixStack matrices = event.matrixStack;
