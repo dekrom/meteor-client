@@ -12,10 +12,12 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.state.ItemEntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.ItemEntity;
+import org.jetbrains.annotations.Nullable;
 
 public class RenderItemEntityEvent extends Cancellable {
     private static final RenderItemEntityEvent INSTANCE = new RenderItemEntityEvent();
 
+    @Nullable
     public ItemEntity itemEntity;
     public ItemEntityRenderState renderState;
     public float tickDelta;
