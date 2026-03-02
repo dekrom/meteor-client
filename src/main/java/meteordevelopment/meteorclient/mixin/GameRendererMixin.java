@@ -15,6 +15,7 @@ import meteordevelopment.meteorclient.events.render.GetFovEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.events.render.RenderAfterWorldEvent;
 import meteordevelopment.meteorclient.gui.WidgetScreen;
+import meteordevelopment.meteorclient.mixininterface.IGameRenderer;
 import meteordevelopment.meteorclient.mixininterface.IVec3d;
 import meteordevelopment.meteorclient.renderer.MeteorRenderPipelines;
 import meteordevelopment.meteorclient.renderer.Renderer3D;
@@ -54,7 +55,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
-public abstract class GameRendererMixin {
+public abstract class GameRendererMixin implements IGameRenderer {
     @Shadow
     @Final
     private MinecraftClient client;
@@ -159,8 +160,7 @@ public abstract class GameRendererMixin {
             widgetScreen.renderCustom(context, mouseX, mouseY, tickCounter.getDynamicDeltaTicks());
 
             RenderSystem.getDevice().createCommandEncoder().clearDepthTexture(client.getFramebuffer().getDepthAttachment(), 1.0);
-            guiRenderer.render(fogRenderer.getFogBuffer(FogRenderer.FogType.NONE));
-            guiRenderer.incrementFrame();
+            meteor$flushGuiState();
         }
     }
 
@@ -260,5 +260,11 @@ public abstract class GameRendererMixin {
         if (!Modules.get().get(Freecam.class).renderHands() ||
             !Modules.get().get(Zoom.class).renderHands())
             ci.cancel();
+    }
+
+    @Override
+    public void meteor$flushGuiState() {
+        guiRenderer.render(fogRenderer.getFogBuffer(FogRenderer.FogType.NONE));
+        guiRenderer.incrementFrame();
     }
 }
