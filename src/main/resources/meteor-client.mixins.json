@@ -13,7 +13,6 @@
     "AbstractFurnaceScreenMixin",
     "AbstractSignBlockEntityRendererMixin",
     "AbstractSignEditScreenAccessor",
-    "AbstractSignEditScreenMixin",
     "ArmorFeatureRendererMixin",
     "ArmorStandEntityRendererMixin",
     "BackgroundRendererMixin",
