@@ -12,7 +12,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.events.meteor.CustomFontChangedEvent;
-import meteordevelopment.meteorclient.mixininterface.IGameRenderer;
 import meteordevelopment.meteorclient.renderer.*;
 import meteordevelopment.meteorclient.renderer.text.CustomTextRenderer;
 import meteordevelopment.meteorclient.renderer.text.Font;
@@ -64,8 +63,6 @@ public class HudRenderer {
     }
 
     public void begin(DrawContext drawContext) {
-        ((IGameRenderer) mc.gameRenderer).meteor$flushGuiState();
-
         Renderer2D.COLOR.begin();
 
         this.drawContext = drawContext;
