@@ -21,6 +21,8 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 import java.util.UUID;
 
+import static meteordevelopment.meteorclient.MeteorClient.mc;
+
 public class Friend implements ISerializable<Friend>, Comparable<Friend> {
     public volatile String name;
     private volatile @Nullable UUID id;
@@ -68,7 +70,11 @@ public class Friend implements ISerializable<Friend>, Comparable<Friend> {
         if (res != null && res.statusCode() == 200) {
             name = res.body().name;
             id = UndashedUuid.fromStringLenient(res.body().id);
-            headTexture = PlayerHeadUtils.fetchHead(id);
+
+            byte[] head = PlayerHeadUtils.fetchHead(id);
+            mc.execute(() -> {
+                if (head != null) headTexture = new PlayerHeadTexture(head, true);
+            });
         }
 
         // cracked accounts shouldn't be assigned ids
