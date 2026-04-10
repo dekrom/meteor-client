@@ -138,6 +138,7 @@
     "MultiPhaseParametersMixin",
     "MultiplayerScreenMixin",
     "MutableTextMixin",
+    "PacketBundlingMixin",
     "PacketByteBufMixin",
     "ParticleManagerMixin",
     "PlayerEntityAccessor",
