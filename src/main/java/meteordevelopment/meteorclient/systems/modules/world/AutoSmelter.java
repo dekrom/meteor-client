@@ -7,6 +7,7 @@ package meteordevelopment.meteorclient.systems.modules.world;
 
 import meteordevelopment.meteorclient.mixininterface.IAbstractFurnaceScreenHandler;
 import meteordevelopment.meteorclient.settings.BoolSetting;
+import meteordevelopment.meteorclient.settings.IntSetting;
 import meteordevelopment.meteorclient.settings.ItemListSetting;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.settings.SettingGroup;
@@ -19,6 +20,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipePropertySet;
 import net.minecraft.screen.AbstractFurnaceScreenHandler;
+import net.minecraft.screen.slot.SlotActionType;
 
 import java.util.List;
 
@@ -31,6 +33,15 @@ public class AutoSmelter extends Module {
         .defaultValue(Items.COAL, Items.CHARCOAL)
         .filter(this::fuelItemFilter)
         .bypassFilterWhenSavingAndLoading()
+        .build()
+    );
+
+    private final Setting<Integer> fuelItemsPerRefill = sgGeneral.add(new IntSetting.Builder()
+        .name("fuel-items-per-refill")
+        .description("How many fuel items to put into the furnace each time it refills")
+        .defaultValue(64)
+        .range(1, 64)
+        .sliderRange(1, 16)
         .build()
     );
 
@@ -47,6 +58,12 @@ public class AutoSmelter extends Module {
         .name("disable-when-out-of-items")
         .description("Disable the module when you run out of items")
         .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<Boolean> autoClose = sgGeneral.add(new BoolSetting.Builder()
+        .name("auto-close")
+        .defaultValue(false)
         .build()
     );
 
@@ -76,6 +93,8 @@ public class AutoSmelter extends Module {
 
         // Insert new items
         insertItems(c);
+
+        if (autoClose.get()) mc.setScreen(null);
     }
 
     private void insertItems(AbstractFurnaceScreenHandler c) {
@@ -100,7 +119,10 @@ public class AutoSmelter extends Module {
             return;
         }
 
+        if (slot == -1) return;
+
         InvUtils.move().fromId(slot).toId(0);
+        c.slots.getFirst().getStack().isEmpty();
     }
 
     private void checkFuel(AbstractFurnaceScreenHandler c) {
@@ -125,7 +147,32 @@ public class AutoSmelter extends Module {
             return;
         }
 
-        InvUtils.move().fromId(slot).toId(1);
+        if (slot == -1) return;
+
+        ItemStack sourceStack = c.slots.get(slot).getStack();
+        int moveCount = Math.min(fuelItemsPerRefill.get(), Math.min(sourceStack.getCount(), c.slots.get(1).getMaxItemCount(sourceStack)));
+
+        if (moveCount <= 0) return;
+
+        moveFuelItems(c, slot, moveCount);
+    }
+
+    private void moveFuelItems(AbstractFurnaceScreenHandler c, int fromId, int amount) {
+        if (amount <= 0 || mc.player == null || mc.interactionManager == null) return;
+        if (!mc.player.currentScreenHandler.getCursorStack().isEmpty()) return;
+
+        mc.interactionManager.clickSlot(c.syncId, fromId, 0, SlotActionType.PICKUP, mc.player);
+
+        for (int i = 0; i < amount; i++) {
+            if (mc.player.currentScreenHandler.getCursorStack().isEmpty()) break;
+            mc.interactionManager.clickSlot(c.syncId, 1, 1, SlotActionType.PICKUP, mc.player);
+        }
+
+        if (!mc.player.currentScreenHandler.getCursorStack().isEmpty()) {
+            mc.interactionManager.clickSlot(c.syncId, fromId, 0, SlotActionType.PICKUP, mc.player);
+        }
+
+        c.slots.get(1).getStack().isEmpty();
     }
 
     private void takeResults(AbstractFurnaceScreenHandler c) {
