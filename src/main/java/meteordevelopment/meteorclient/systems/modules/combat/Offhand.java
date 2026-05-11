@@ -11,12 +11,12 @@ import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.systems.modules.Modules;
+import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.meteorclient.utils.player.PlayerUtils;
 import meteordevelopment.orbit.EventHandler;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.AxeItem;
 import net.minecraft.item.Items;
@@ -248,7 +248,7 @@ public class Offhand extends Module {
         return mc.player.getMainHandStack().getItem() == Items.BOW
             || mc.player.getMainHandStack().getItem() == Items.TRIDENT
             || mc.player.getMainHandStack().getItem() == Items.CROSSBOW
-            || mc.player.getMainHandStack().getItem().getComponents().contains(DataComponentTypes.FOOD);
+            || Utils.isFood(mc.player.getMainHandStack());
     }
 
     @Override
