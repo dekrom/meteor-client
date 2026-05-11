@@ -54,7 +54,7 @@ public class AutoEat extends Module {
             Items.SPIDER_EYE,
             Items.SUSPICIOUS_STEW
         )
-        .filter(item -> item.getComponents().get(DataComponentTypes.FOOD) != null)
+        .filter(Utils::isFood)
         .build()
     );
 
@@ -320,7 +320,7 @@ public class AutoEat extends Module {
         if (blacklist.get().contains(stack.getItem())) return false;
 
         FoodComponent food = stack.get(DataComponentTypes.FOOD);
-        return food != null && (mc.player.getHungerManager().isNotFull() || food.canAlwaysEat());
+        return food != null && Utils.isFood(stack) && (mc.player.getHungerManager().isNotFull() || food.canAlwaysEat());
     }
 
     public enum ThresholdMode {
