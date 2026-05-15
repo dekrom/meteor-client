@@ -16,6 +16,8 @@ import net.minecraft.client.input.CharInput;
 import net.minecraft.client.input.KeyInput;
 import net.minecraft.util.math.MathHelper;
 
+import static meteordevelopment.meteorclient.utils.Utils.getWindowHeight;
+
 public abstract class WDropdown<T> extends WPressable {
     public Runnable action;
 
@@ -112,11 +114,14 @@ public abstract class WDropdown<T> extends WPressable {
         animProgress = MathHelper.clamp(animProgress, 0, 1);
 
         WView view = getView();
-        boolean rootInView = view == null || view.isWidgetInView(root);
+        boolean rootInView = view == null || view.isWidgetInView(this);
 
         if (!render && animProgress > 0 && rootInView) {
+            double dropdownY = y + height;
+            double scissorHeight = Math.min(root.height * animProgress, getWindowHeight() - dropdownY);
+
             renderer.absolutePost(() -> {
-                renderer.scissorStart(x, y + height, width, root.height * animProgress);
+                renderer.scissorStart(x, dropdownY, width, scissorHeight);
                 root.render(renderer, mouseX, mouseY, delta);
                 renderer.scissorEnd();
             });
