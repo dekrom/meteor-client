@@ -230,13 +230,6 @@ public class NoRender extends Module {
         .build()
     );
 
-    private final Setting<Boolean> noBlockBreakParticles = sgWorld.add(new BoolSetting.Builder()
-        .name("block-break-particles")
-        .description("Disables rendering of block-break particles.")
-        .defaultValue(false)
-        .build()
-    );
-
     private final Setting<Boolean> noBlockBreakOverlay = sgWorld.add(new BoolSetting.Builder()
         .name("block-break-overlay")
         .description("Disables rendering of block-break overlay.")
@@ -517,8 +510,8 @@ public class NoRender extends Module {
         return isActive() && noSignText.get();
     }
 
-    public boolean noBlockBreakParticles() {
-        return isActive() && noBlockBreakParticles.get();
+    public boolean noParticle(ParticleType<?> type) {
+        return isActive() && particles.get().contains(type);
     }
 
     public boolean noBlockBreakOverlay() {
