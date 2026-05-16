@@ -9,7 +9,6 @@ import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.utils.misc.Names;
-import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registries;
 

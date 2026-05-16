@@ -20,7 +20,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
@@ -107,7 +106,6 @@ public class Names {
     }
 
     public static String get(ParticleType<?> type) {
-        if (!(type instanceof ParticleEffect)) return "";
         return particleTypesNames.computeIfAbsent(type, effect1 -> StringUtils.capitalize(Registries.PARTICLE_TYPE.getId(type).getPath().replace("_", " ")));
     }
 
