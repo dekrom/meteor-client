@@ -9,7 +9,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
@@ -37,7 +36,7 @@ public class ParticleTypeListSetting extends Setting<List<ParticleType<?>>> {
         try {
             for (String value : values) {
                 ParticleType<?> particleType = parseId(Registries.PARTICLE_TYPE, value);
-                if (particleType instanceof ParticleEffect) particleTypes.add(particleType);
+                if (particleType != null) particleTypes.add(particleType);
             }
         } catch (Exception ignored) {}
 
