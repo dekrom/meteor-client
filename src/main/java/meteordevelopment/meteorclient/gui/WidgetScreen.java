@@ -122,6 +122,13 @@ public abstract class WidgetScreen extends Screen {
         mouseX *= s;
         mouseY *= s;
 
+        // Unfocus all text boxes that are not under the mouse cursor
+        loopWidgets(root, widget -> {
+            if (widget instanceof WTextBox textBox && textBox.isFocused() && !textBox.mouseOver) {
+                textBox.setFocused(false);
+            }
+        });
+
         return root.mouseClicked(mouseX, mouseY, button, false);
     }
 
