@@ -433,7 +433,7 @@ public abstract class WTextBox extends WWidget {
                     if (cursor == selectionEnd && cursor != selectionStart) {
                         cursor = selectionStart;
                     }
-                    else {
+                    else if (!(cursor == selectionStart && cursor != selectionEnd)) {
                         cursor--;
                     }
 
@@ -501,7 +501,7 @@ public abstract class WTextBox extends WWidget {
                     if (cursor == selectionStart && cursor != selectionEnd) {
                         cursor = selectionEnd;
                     }
-                    else {
+                    else if (!(cursor == selectionEnd && cursor != selectionStart)) {
                         cursor++;
                     }
 
