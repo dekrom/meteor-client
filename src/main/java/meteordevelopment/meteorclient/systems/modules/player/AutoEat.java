@@ -178,6 +178,7 @@ public class AutoEat extends Module {
     private void startEating() {
         prevSlot = mc.player.getInventory().selectedSlot;
         eat();
+        if (!eating) return;
 
         // Pause auras
         wasAura.clear();
