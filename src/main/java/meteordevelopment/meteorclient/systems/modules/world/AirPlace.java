@@ -122,6 +122,9 @@ public class AirPlace extends Module {
 
     private boolean placeable(ItemStack stack) {
         Item i = stack.getItem();
-        return i instanceof BlockItem || i instanceof SpawnEggItem || i instanceof FireworkRocketItem || i instanceof ArmorStandItem;
+        return i instanceof BlockItem
+            || i instanceof SpawnEggItem
+            || (i instanceof FireworkRocketItem && !mc.player.isGliding())
+            || i instanceof ArmorStandItem;
     }
 }
