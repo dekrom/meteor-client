@@ -342,15 +342,15 @@ public abstract class WidgetScreen extends Screen {
             }
 
             if (onClose) {
-                double restoreX = lastMouseX / mc.getWindow().getScaleFactor();
-                double restoreY = lastMouseY / mc.getWindow().getScaleFactor();
+                double restoreX = mc.mouse.getX();
+                double restoreY = mc.mouse.getY();
 
                 taskAfterRender = () -> {
                     locked = true;
                     mc.setScreen(parent);
 
                     // Restore mouse position to where it was when the screen was closed
-                    if (parent == null) {
+                    if (parent != null) {
                         glfwSetCursorPos(mc.getWindow().getHandle(), restoreX, restoreY);
                     }
                 };
