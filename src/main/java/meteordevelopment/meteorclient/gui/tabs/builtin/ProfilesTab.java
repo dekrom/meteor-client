@@ -120,7 +120,7 @@ public class ProfilesTab extends Tab {
 
             WButton save = add(theme.button(isNew ? "Create" : "Save")).expandX().widget();
             save.action = () -> {
-                if (profile.name.get().isEmpty()) return;
+                if (profile.getSafeFile() == null) return;
 
                 if (isNew) {
                     for (Profile p : Profiles.get()) {
