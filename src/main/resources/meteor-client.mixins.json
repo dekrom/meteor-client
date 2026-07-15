@@ -26,6 +26,7 @@
     "BlockEntityRenderDispatcherMixin",
     "BlockHitResultAccessor",
     "BlockItemMixin",
+    "BlockListCheckerMixin",
     "BlockMixin",
     "BlockModelRendererMixin",
     "BlockRenderManagerMixin",
