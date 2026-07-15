@@ -29,6 +29,7 @@
     "BlockEntityTypeAccessor",
     "BlockHitResultAccessor",
     "BlockItemMixin",
+    "BlockListCheckerMixin",
     "BlockMixin",
     "BlockModelRendererMixin",
     "BlockRenderManagerMixin",
