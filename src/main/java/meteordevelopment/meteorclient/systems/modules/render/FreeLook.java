@@ -81,7 +81,7 @@ public class FreeLook extends Module {
 
     @Override
     public void onDeactivate() {
-        if (mc.options.getPerspective() != prePers && togglePerspective.get()) mc.options.setPerspective(prePers);
+        if (prePers != null && mc.options.getPerspective() != prePers && togglePerspective.get()) mc.options.setPerspective(prePers);
     }
 
     public boolean playerMode() {
