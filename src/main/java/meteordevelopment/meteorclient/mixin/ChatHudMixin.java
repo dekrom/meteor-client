@@ -134,6 +134,8 @@ public abstract class ChatHudMixin implements IChatHud {
 
     @ModifyExpressionValue(method = "render(Lnet/minecraft/client/gui/hud/ChatHud$Backend;IIZ)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/MathHelper;ceil(F)I"))
     private int onRender_modifyWidth(int width) {
+        if (Modules.get() == null) return width;
+
         return getBetterChat().modifyChatWidth(width);
     }
 
@@ -161,11 +163,15 @@ public abstract class ChatHudMixin implements IChatHud {
 
     @Inject(method = "clear", at = @At("HEAD"))
     private void onClear(boolean clearHistory, CallbackInfo ci) {
+        if (Modules.get() == null) return;
+
         getBetterChat().lines.clear();
     }
 
     @Inject(method = "refresh", at = @At("HEAD"))
     private void onRefresh(CallbackInfo ci) {
+        if (Modules.get() == null) return;
+
         getBetterChat().lines.clear();
     }
 
