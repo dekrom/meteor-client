@@ -22,9 +22,6 @@ import java.util.stream.Stream;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class Capes {
-    private static final String CAPE_OWNERS_URL = "https://meteorclient.com/api/capeowners";
-    private static final String CAPES_URL = "https://meteorclient.com/api/capes";
-
     private static final Map<UUID, String> OWNERS = new HashMap<>();
     private static final Map<String, String> URLS = new HashMap<>();
     private static final Map<String, Cape> TEXTURES = new HashMap<>();
@@ -45,32 +42,7 @@ public class Capes {
         TO_RETRY.clear();
         TO_REMOVE.clear();
 
-        MeteorExecutor.execute(() -> {
-            // Cape owners
-            Stream<String> lines = Http.get(CAPE_OWNERS_URL)
-                .exceptionHandler(e -> MeteorClient.LOG.error("Could not load capes: {}", e.getMessage()))
-                .sendLines();
-            if (lines != null) {
-                lines.forEach(s -> {
-                    String[] split = s.split(" ");
-
-                    if (split.length >= 2) {
-                        OWNERS.put(UUID.fromString(split[0]), split[1]);
-                        if (!TEXTURES.containsKey(split[1])) TEXTURES.put(split[1], new Cape(split[1]));
-                    }
-                });
-            } else return;
-
-            // Capes
-            lines = Http.get(CAPES_URL).sendLines();
-            if (lines != null) lines.forEach(s -> {
-                String[] split = s.split(" ");
-
-                if (split.length >= 2) {
-                    if (!URLS.containsKey(split[0])) URLS.put(split[0], split[1]);
-                }
-            });
-        });
+        // Cape owner/texture lists are no longer fetched from the network, so no capes are ever registered.
 
         MeteorClient.EVENT_BUS.subscribe(Capes.class);
     }
