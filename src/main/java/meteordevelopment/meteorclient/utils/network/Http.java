@@ -19,6 +19,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Date;
+import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -34,6 +36,24 @@ public class Http {
         .executor(Executors.newVirtualThreadPerTaskExecutor())
         .build();
 
+    // Only these hosts may be contacted. Everything else is refused before a connection is opened.
+    private static final Set<String> ALLOWED_HOSTS = Set.of(
+        "sessionserver.mojang.com",
+        "api.mojang.com",
+        "api.minecraftservices.com",
+        "textures.minecraft.net",
+        "authserver.thealtening.com",
+        "sessionserver.thealtening.com",
+        "bep.dek.to"
+    );
+
+    private static boolean isAllowed(URI uri) {
+        String host = uri.getHost();
+        if (host == null) return false;
+        host = host.toLowerCase(Locale.ROOT);
+        return ALLOWED_HOSTS.contains(host);
+    }
+
     private static final Gson GSON = new GsonBuilder()
         .registerTypeAdapter(Date.class, new JsonDateDeserializer())
         .create();
@@ -45,12 +65,15 @@ public class Http {
 
     public static class Request {
         private final HttpRequest.Builder builder;
+        private final boolean blocked;
         private Method method;
         private Consumer<Exception> exceptionHandler = Exception::printStackTrace;
 
         private Request(Method method, String url) {
             try {
-                this.builder = HttpRequest.newBuilder().uri(new URI(url)).header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36");
+                URI uri = new URI(url);
+                this.blocked = !isAllowed(uri);
+                this.builder = HttpRequest.newBuilder().uri(uri).header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/112.0.0.0 Safari/537.36");
                 this.method = method;
             } catch (URISyntaxException e) {
                 throw new IllegalArgumentException(e);
@@ -117,6 +140,8 @@ public class Http {
             if (method != null) builder.method(method.name(), HttpRequest.BodyPublishers.noBody());
 
             HttpRequest request = builder.build();
+
+            if (blocked) return new FailedHttpResponse<>(request, new IOException("Blocked outbound request to " + request.uri().getHost()));
 
             try {
                 return CLIENT.send(request, responseBodyHandler);
