@@ -57,4 +57,6 @@ endpoint gets blocked by default rather than silently starting to phone home aft
 ./gradlew build        # needs JDK 25, MC 26.2 is unobfuscated so there are no mappings
 ```
 
-Releases are built by `.github/workflows/release.yml`, run by hand from the Actions tab.
+Releases are cut by `.github/workflows/release.yml`, run by hand from the Actions tab. It works
+out the next version from the existing tags, checks that the version inside the jar matches the
+tag, and writes the changelog from the commits this branch carries on top of upstream.
