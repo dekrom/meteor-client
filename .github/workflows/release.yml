@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      notes:
+        description: "Extra release notes"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '25'
+
+      - name: Build
+        run: ./gradlew build -Pcommit=${{ github.sha }} -Pbuild_number=bephax.${{ github.run_number }}
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v26.2-bephax.${{ github.run_number }}
+          NOTES: ${{ inputs.notes }}
+        run: |
+          {
+            echo "Meteor Client 26.2 with the fixes and network changes listed in [FORK.md](../blob/${{ github.sha }}/FORK.md)."
+            echo
+            echo "Built from ${{ github.sha }}. This is not an official Meteor build."
+            if [ -n "$NOTES" ]; then echo; echo "$NOTES"; fi
+          } > notes.md
+          gh release create "$TAG" build/libs/*.jar \
+            --repo "${{ github.repository }}" \
+            --target "${{ github.sha }}" \
+            --title "$TAG" \
+            --notes-file notes.md
