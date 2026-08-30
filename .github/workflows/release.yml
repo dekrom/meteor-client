@@ -3,50 +3,194 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
+      prerelease:
+        description: "Mark the release as a prerelease"
+        type: boolean
+        default: false
       notes:
-        description: "Extra release notes"
+        description: "Extra notes, put above the generated changelog"
+        type: string
         required: false
         default: ""
 
 permissions:
   contents: write
 
+concurrency:
+  group: release
+  cancel-in-progress: false
+
 jobs:
   release:
+    name: Build and release
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+      - name: Work out the version
+        id: version
+        run: |
+          set -euo pipefail
+
+          mc=$(sed -n 's/^minecraft = "\(.*\)"$/\1/p' gradle/libs.versions.toml)
+          if [ -z "$mc" ]; then
+            echo "::error::could not read the minecraft version out of gradle/libs.versions.toml"
+            exit 1
+          fi
+
+          last=$(git tag -l "v$mc-bephax.*" | sed "s/^v$mc-bephax\.//" | grep -E '^[0-9]+$' | sort -n | tail -1 || true)
+          number=$(( ${last:-0} + 1 ))
+          version="$mc-bephax.$number"
+
+          if git rev-parse -q --verify "refs/tags/v$version" >/dev/null; then
+            echo "::error::tag v$version already exists"
+            exit 1
+          fi
+
+          {
+            echo "mc=$mc"
+            echo "number=$number"
+            echo "version=$version"
+            echo "tag=v$version"
+            echo "previous=$( [ -n "${last:-}" ] && echo "v$mc-bephax.$last" || true )"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "building $version"
 
       - name: Set up Java
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
         with:
-          distribution: 'temurin'
-          java-version: '25'
+          distribution: temurin
+          java-version: "25"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
 
       - name: Build
-        run: ./gradlew build -Pcommit=${{ github.sha }} -Pbuild_number=bephax.${{ github.run_number }}
+        run: ./gradlew build --no-daemon -Pcommit=${{ github.sha }} -Pbuild_number=bephax.${{ steps.version.outputs.number }}
 
-      - name: Create release
+      - name: Check the jar
+        id: jar
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          jar="build/libs/meteor-client-$VERSION.jar"
+          sources="build/libs/meteor-client-$VERSION-sources.jar"
+
+          for f in "$jar" "$sources"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::expected $f, but the build produced:"
+              ls -1 build/libs >&2
+              exit 1
+            fi
+          done
+
+          # The tag has to match what is actually inside the jar, not just the file name
+          inside=$(unzip -p "$jar" fabric.mod.json | jq -r .version)
+          if [ "$inside" != "$VERSION" ]; then
+            echo "::error::jar says version $inside, expected $VERSION"
+            exit 1
+          fi
+
+          {
+            echo "jar=$jar"
+            echo "sources=$sources"
+            echo "size=$(du -h "$jar" | cut -f1)"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Write the release notes
+        id: notes
+        env:
+          EXTRA: ${{ inputs.notes }}
+          TAG: ${{ steps.version.outputs.tag }}
+          PREVIOUS: ${{ steps.version.outputs.previous }}
+          MC: ${{ steps.version.outputs.mc }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          # No --depth here: the checkout is a full clone and a shallow fetch on top of one
+          # leaves the repo shallow, which breaks merge-base.
+          base=""
+          if git remote add upstream https://github.com/MeteorDevelopment/meteor-client.git \
+             && git fetch --quiet --no-tags upstream master; then
+            base=$(git merge-base upstream/master HEAD || true)
+          else
+            echo "::warning::could not reach upstream, skipping the fork delta"
+          fi
+
+          {
+            if [ -n "$EXTRA" ]; then
+              printf '%s\n\n' "$EXTRA"
+            fi
+
+            echo "Meteor Client for Minecraft $MC, built from \`$SHA\`."
+            echo
+            echo "Not an official Meteor build. What this fork changes is written up in"
+            echo "[FORK.md](https://github.com/$REPO/blob/$SHA/FORK.md)."
+
+            if [ -n "$base" ]; then
+              echo
+              echo "### On top of upstream"
+              echo
+              echo "Based on upstream \`$(git rev-parse --short "$base")\` ($(git log -1 --format=%s "$base"))."
+              echo
+              git log --reverse --format='- %s' "$base..HEAD"
+            fi
+
+            if [ -n "$PREVIOUS" ] && git rev-parse -q --verify "refs/tags/$PREVIOUS" >/dev/null; then
+              echo
+              echo "### Since $PREVIOUS"
+              echo
+              changes=$(git log --reverse --format='- %s' "$PREVIOUS..HEAD")
+              if [ -n "$changes" ]; then
+                echo "$changes"
+              else
+                echo "- Rebuilt, no source changes."
+              fi
+            fi
+          } > release-notes.md
+
+          cat release-notes.md
+
+      - name: Create the release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: v26.2-bephax.${{ github.run_number }}
-          NOTES: ${{ inputs.notes }}
+          TAG: ${{ steps.version.outputs.tag }}
+          JAR: ${{ steps.jar.outputs.jar }}
+          SOURCES: ${{ steps.jar.outputs.sources }}
+        run: |
+          set -euo pipefail
+
+          args=(
+            "$TAG" "$JAR" "$SOURCES"
+            --repo "${{ github.repository }}"
+            --target "${{ github.sha }}"
+            --title "$TAG"
+            --notes-file release-notes.md
+          )
+          if [ "${{ inputs.prerelease }}" = "true" ]; then
+            args+=(--prerelease)
+          fi
+
+          gh release create "${args[@]}"
+
+      - name: Summary
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          SIZE: ${{ steps.jar.outputs.size }}
         run: |
           {
-            echo "Meteor Client 26.2 with the fixes and network changes listed in [FORK.md](../blob/${{ github.sha }}/FORK.md)."
+            echo "### $TAG"
             echo
-            echo "Built from ${{ github.sha }}. This is not an official Meteor build."
-            if [ -n "$NOTES" ]; then echo; echo "$NOTES"; fi
-          } > notes.md
-          gh release create "$TAG" build/libs/*.jar \
-            --repo "${{ github.repository }}" \
-            --target "${{ github.sha }}" \
-            --title "$TAG" \
-            --notes-file notes.md
+            echo "- Jar: \`$(basename "${{ steps.jar.outputs.jar }}")\` ($SIZE)"
+            echo "- <https://github.com/${{ github.repository }}/releases/tag/$TAG>"
+          } >> "$GITHUB_STEP_SUMMARY"
