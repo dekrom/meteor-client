@@ -49,14 +49,16 @@ public abstract class System<T> implements ISerializable<T> {
         CompoundTag tag = toTag();
         if (tag == null) return;
 
+        if (folder != null) file = new File(folder, file.getName());
+
         Path tempFile = null;
         try {
-            tempFile = Files.createTempFile(MeteorClient.MOD_ID, file.getName());
-            NbtIo.write(tag, tempFile);
-
-            if (folder != null) file = new File(folder, file.getName());
-
             Files.createDirectories(file.toPath().getParent());
+
+            // The temp file has to live next to the target, otherwise the move crosses a filesystem
+            // boundary and falls back to a copy that truncates the old file before writing
+            tempFile = Files.createTempFile(file.toPath().getParent(), MeteorClient.MOD_ID, file.getName());
+            NbtIo.write(tag, tempFile);
 
             try {
                 Files.move(tempFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
