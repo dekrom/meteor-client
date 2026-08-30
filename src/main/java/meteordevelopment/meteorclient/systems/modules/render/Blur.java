@@ -12,6 +12,7 @@ import com.mojang.renderpearl.api.GpuFormat;
 import com.mojang.renderpearl.api.buffers.GpuBufferSlice;
 import com.mojang.renderpearl.api.pipeline.RenderPipeline;
 import com.mojang.renderpearl.api.textures.FilterMode;
+import com.mojang.renderpearl.api.textures.GpuTexture;
 import com.mojang.renderpearl.api.textures.GpuTextureView;
 import it.unimi.dsi.fastutil.ints.IntFloatImmutablePair;
 import meteordevelopment.meteorclient.MeteorClient;
@@ -133,7 +134,10 @@ public class Blur extends Module {
             // Resize all fbos
             for (int i = 0; i < fbos.length; i++) {
                 if (fbos[i] != null) {
+                    // Closing the view only drops a reference, the texture itself has to be closed too
+                    GpuTexture texture = fbos[i].texture();
                     fbos[i].close();
+                    texture.close();
                 }
 
                 fbos[i] = createFbo(i);
