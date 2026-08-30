@@ -65,25 +65,19 @@ public class FontFaceSetting extends Setting<FontFace> {
     @Override
     protected FontFace load(NbtCompound tag) {
         String family = tag.getString("family");
-        FontInfo.Type type;
+        FontInfo.Type type = FontInfo.Type.fromString(tag.getString("type"));
 
-        try {
-            type = FontInfo.Type.valueOf(tag.getString("type"));
-        }
-        catch (IllegalArgumentException ignored) {
-            set(Fonts.DEFAULT_FONT);
-            return get();
-        }
-
-        boolean changed = false;
         for (FontFamily fontFamily : Fonts.FONT_FAMILIES) {
-            if (fontFamily.getName().equals(family)) {
-                set(fontFamily.get(type));
-                changed = true;
+            if (!fontFamily.getName().equals(family)) continue;
+
+            FontFace face = fontFamily.get(type);
+            if (face != null) {
+                set(face);
+                return get();
             }
         }
-        if (!changed) set(Fonts.DEFAULT_FONT);
 
+        set(Fonts.DEFAULT_FONT);
         return get();
     }
 
