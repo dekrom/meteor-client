@@ -143,7 +143,7 @@ public class DiscordPresence extends Module {
 
     @Override
     public void onActivate() {
-        DiscordIPC.start(835240968533049424L, null);
+        // Discord IPC connection disabled: no presence is published.
 
         rpc.setStart(System.currentTimeMillis() / 1000L);
 
@@ -167,7 +167,7 @@ public class DiscordPresence extends Module {
 
     @Override
     public void onDeactivate() {
-        DiscordIPC.stop();
+        // Discord IPC connection disabled: nothing to tear down.
     }
 
     private void recompile(List<String> messages, List<Script> scripts) {
@@ -274,8 +274,7 @@ public class DiscordPresence extends Module {
             }
         }
 
-        // Update
-        if (update) DiscordIPC.setActivity(rpc);
+        // Update (Discord IPC disabled: presence is computed but never published)
         forceUpdate = false;
         lastWasInMainMenu = !Utils.canUpdate();
     }
