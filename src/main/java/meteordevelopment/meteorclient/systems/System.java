@@ -15,6 +15,9 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
@@ -44,15 +47,26 @@ public abstract class System<T> implements ISerializable<T> {
         NbtCompound tag = toTag();
         if (tag == null) return;
 
+        if (folder != null) file = new File(folder, file.getName());
+
         try {
-            File tempFile = File.createTempFile(MeteorClient.MOD_ID, file.getName());
-            NbtIo.write(tag, tempFile.toPath());
-
-            if (folder != null) file = new File(folder, file.getName());
-
             file.getParentFile().mkdirs();
-            StreamUtils.copy(tempFile, file);
-            tempFile.delete();
+
+            // The temp file has to live next to the target, otherwise the move crosses a filesystem
+            // boundary and falls back to a copy that truncates the old file before writing
+            File tempFile = File.createTempFile(MeteorClient.MOD_ID, file.getName(), file.getParentFile());
+
+            try {
+                NbtIo.write(tag, tempFile.toPath());
+
+                try {
+                    Files.move(tempFile.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
+                } catch (AtomicMoveNotSupportedException e) {
+                    StreamUtils.copy(tempFile, file);
+                }
+            } finally {
+                tempFile.delete();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
