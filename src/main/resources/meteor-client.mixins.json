@@ -133,6 +133,7 @@
     "MultiPhaseMixin",
     "MultiPhaseParametersMixin",
     "MultiplayerScreenMixin",
+    "MusicTrackerMixin",
     "MutableTextMixin",
     "PacketBundlingMixin",
     "PacketByteBufMixin",
