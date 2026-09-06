@@ -141,6 +141,7 @@
     "MountScreenHandlerAccessor",
     "MouseMixin",
     "MultiplayerScreenMixin",
+    "MusicTrackerMixin",
     "MutableTextMixin",
     "PacketBundlingMixin",
     "PacketByteBufMixin",

@@ -29,7 +29,7 @@ public abstract class SoundSystemMixin {
     private void onPlay(SoundInstance soundInstance, CallbackInfoReturnable<SoundSystem.PlayResult> cir) {
         PlaySoundEvent event = MeteorClient.EVENT_BUS.post(PlaySoundEvent.get(soundInstance));
 
-        if (event.isCancelled()) cir.cancel();
+        if (event.isCancelled()) cir.setReturnValue(SoundSystem.PlayResult.NOT_STARTED);
     }
 
     @Inject(method = "tick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/sound/TickableSoundInstance;tick()V", ordinal = 0))
