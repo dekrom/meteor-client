@@ -21,6 +21,8 @@ import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.projectile.FishingBobberEntity;
 import net.minecraft.item.FishingRodItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
+import org.jetbrains.annotations.Nullable;
 
 public class AutoFish extends Module {
     private final SettingGroup sgGeneral = settings.getDefaultGroup();
@@ -82,39 +84,44 @@ public class AutoFish extends Module {
         .build()
     );
 
+    private enum State {
+        IDLE,
+        WAITING_FOR_BITE,
+        WAITING_TO_REEL
+    }
+
+    private State state = State.IDLE;
+    private double castDelayLeft = 0.0;
+    private double catchDelayLeft = 0.0;
+
     public AutoFish() {
         super(Categories.Player, "auto-fish", "Automatically fishes for you.");
     }
 
-    private double castDelayLeft = 0.0;
-    private double catchDelayLeft = 0.0;
-    private boolean wasHooked = false;
-
     @Override
     public void onActivate() {
+        state = State.IDLE;
         castDelayLeft = 0.0;
         catchDelayLeft = 0.0;
+    }
 
-        wasHooked = false;
+    @Override
+    public void onDeactivate() {
+        state = State.IDLE;
     }
 
     @EventHandler
     private void onTick(TickEvent.Pre event) {
-        int bestRodSlot = findBestRod();
-
-        if (autoSwitch.get() && bestRodSlot != -1 && mc.player.getInventory().getSelectedSlot() != bestRodSlot) {
-            InvUtils.swap(bestRodSlot, false);
-        }
-
-        if (!(mc.player.getMainHandStack().getItem() instanceof FishingRodItem)) return;
-
-        tryCast();
-        tryCatch();
+        if (mc.player.fishHook != null) handleFishing();
+        else handleIdle();
     }
 
-    private void tryCast() {
-        if (mc.player.fishHook != null) return;
+    private void handleIdle() {
+        if (state != State.IDLE) state = State.IDLE;
 
+        RodCandidate candidate = findBestRodCandidate();
+        if (candidate == null) return;
+        if (!prepareRod(candidate)) return;
         if (!autoCast.get()) return;
 
         if (castDelayLeft > 0) {
@@ -122,67 +129,128 @@ public class AutoFish extends Module {
             return;
         }
 
-        useRod();
+        cast();
     }
 
-    private void tryCatch() {
-        if (mc.player.fishHook == null) return;
-        if (mc.player.fishHook.getHookedEntity() != null) {
-            useRod();
-            return;
-        }
+    private void handleFishing() {
+        switch (state) {
+            case IDLE -> state = State.WAITING_FOR_BITE;
+            case WAITING_FOR_BITE -> {
+                if (mc.player.fishHook.getHookedEntity() != null) {
+                    reel();
+                    return;
+                }
 
-        if (mc.player.fishHook.state != FishingBobberEntity.State.BOBBING) return;
-
-        if (!wasHooked) {
-            if (((FishingBobberEntityAccessor) mc.player.fishHook).meteor$hasCaughtFish()) {
-                catchDelayLeft = randomizeDelay(catchDelay.get(), catchDelayVariance.get());
-                wasHooked = true;
+                if (mc.player.fishHook.state != FishingBobberEntity.State.BOBBING) return;
+                if (((FishingBobberEntityAccessor) mc.player.fishHook).meteor$hasCaughtFish()) {
+                    catchDelayLeft = randomizeDelay(catchDelay.get(), catchDelayVariance.get());
+                    state = State.WAITING_TO_REEL;
+                }
             }
+            case WAITING_TO_REEL -> {
+                if (mc.player.fishHook.getHookedEntity() != null) {
+                    reel();
+                    return;
+                }
 
-            return;
+                if (catchDelayLeft > 0) {
+                    catchDelayLeft -= TickRate.INSTANCE.getTickRate() / 20.0;
+                    return;
+                }
+
+                reel();
+            }
         }
-
-        if (catchDelayLeft > 0) {
-            catchDelayLeft -= TickRate.INSTANCE.getTickRate() / 20.0;
-            return;
-        }
-
-        useRod();
     }
 
-    private void useRod() {
-        Utils.rightClick();
-        wasHooked = false;
+    private void cast() {
+        if (useRod()) state = State.WAITING_FOR_BITE;
+    }
+
+    private void reel() {
+        if (useRod()) state = State.IDLE;
+    }
+
+    private boolean useRod() {
+        RodCandidate candidate = findBestRodCandidate();
+        if (candidate == null) return false;
+        if (!prepareRod(candidate)) return false;
+
+        mc.interactionManager.interactItem(mc.player, candidate.hand());
         castDelayLeft = randomizeDelay(castDelay.get(), castDelayVariance.get());
+        return true;
     }
 
-    private int findBestRod() {
-        int bestSlot = -1;
-        int bestScore = -1;
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean prepareRod(RodCandidate candidate) {
+        if (candidate.hand() == Hand.OFF_HAND) return true;
+        if (candidate.hotbarSlot() == mc.player.getInventory().getSelectedSlot()) return true;
+        if (!autoSwitch.get()) return false;
+
+        InvUtils.swap(candidate.hotbarSlot(), false);
+        return candidate.hotbarSlot() == mc.player.getInventory().getSelectedSlot();
+    }
+
+    private boolean isUsableRod(ItemStack stack) {
+        if (!(stack.getItem() instanceof FishingRodItem)) return false;
+        return !antiBreak.get() || stack.getDamage() != stack.getMaxDamage() - 1;
+    }
+
+    private int scoreRod(ItemStack stack) {
+        int score = 0;
+
+        score += Utils.getEnchantmentLevel(stack, Enchantments.LUCK_OF_THE_SEA);
+        score += Utils.getEnchantmentLevel(stack, Enchantments.LURE);
+        score += Utils.getEnchantmentLevel(stack, Enchantments.MENDING);
+        score += Utils.getEnchantmentLevel(stack, Enchantments.UNBREAKING);
+
+        return score;
+    }
+
+    /// Finds the best rod candidate in the player's inventory and offhand.
+    ///
+    /// Tie-break order:
+    /// 1. Selected hotbar slot
+    /// 2. Remaining hotbar slots in stable 0..8 order
+    /// 3. Offhand
+    ///
+    /// Candidates only replace the current best when they have a strictly higher score,
+    /// preserving the ordering above for equal scores.
+    private @Nullable RodCandidate findBestRodCandidate() {
+        int selectedSlot = mc.player.getInventory().getSelectedSlot();
+        RodCandidate best = null;
+
+        ItemStack mainHandStack = mc.player.getMainHandStack();
+        if (isUsableRod(mainHandStack)) {
+            best = new RodCandidate(Hand.MAIN_HAND, selectedSlot, scoreRod(mainHandStack));
+        }
 
         for (int i = 0; i < 9; i++) {
+            if (i == selectedSlot) continue;
+
             ItemStack stack = mc.player.getInventory().getStack(i);
-            if (!(stack.getItem() instanceof FishingRodItem)) continue;
-            if (antiBreak.get() && stack.getDamage() == stack.getMaxDamage() - 1) continue;
+            if (!isUsableRod(stack)) continue;
 
-            int score = 0;
+            int score = scoreRod(stack);
 
-            score += Utils.getEnchantmentLevel(stack, Enchantments.LUCK_OF_THE_SEA);
-            score += Utils.getEnchantmentLevel(stack, Enchantments.LURE);
-            score += Utils.getEnchantmentLevel(stack, Enchantments.MENDING);
-            score += Utils.getEnchantmentLevel(stack, Enchantments.UNBREAKING);
-
-            if (score > bestScore) {
-                bestScore = score;
-                bestSlot = i;
+            if (best == null || score > best.score()) {
+                best = new RodCandidate(Hand.MAIN_HAND, i, score);
             }
-
-            // Found a maxed out rod
-            if (score == 10) break;
         }
 
-        return bestSlot;
+        ItemStack offhandStack = mc.player.getOffHandStack();
+        if (isUsableRod(offhandStack)) {
+            int score = scoreRod(offhandStack);
+
+            if (best == null || score > best.score()) {
+                best = new RodCandidate(Hand.OFF_HAND, -1, score);
+            }
+        }
+
+        return best;
+    }
+
+    private record RodCandidate(Hand hand, int hotbarSlot, int score) {
     }
 
     private double randomizeDelay(int delay, int variance) {
@@ -197,7 +265,7 @@ public class AutoFish extends Module {
         final double MAX_SD = 3.0;
         norm = Math.clamp(norm, -MAX_SD, MAX_SD) / MAX_SD;
 
-        delay += Math.round((float)(norm * variance));
+        delay += Math.round((float) (norm * variance));
         return Math.max(1, delay);
     }
 }
