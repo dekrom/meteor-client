@@ -290,8 +290,9 @@ public class DamageUtils {
 
         int damageProtection = 0;
 
+        Object2IntMap<RegistryEntry<Enchantment>> enchantments = new Object2IntOpenHashMap<>();
+
         for (ItemStack stack : player.getAllArmorItems()) {
-            Object2IntMap<RegistryEntry<Enchantment>> enchantments = new Object2IntOpenHashMap<>();
             Utils.getEnchantments(stack, enchantments);
 
             int protection = Utils.getEnchantmentLevel(enchantments, Enchantments.PROTECTION);
