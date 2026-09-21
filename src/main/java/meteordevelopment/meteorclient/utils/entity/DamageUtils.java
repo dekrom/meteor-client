@@ -301,10 +301,11 @@ public class DamageUtils {
 
         int damageProtection = 0;
 
+        Object2IntMap<RegistryEntry<Enchantment>> enchantments = new Object2IntOpenHashMap<>();
+
         for (EquipmentSlot slot : AttributeModifierSlot.ARMOR) {
             ItemStack stack = player.getEquippedStack(slot);
 
-            Object2IntMap<RegistryEntry<Enchantment>> enchantments = new Object2IntOpenHashMap<>();
             Utils.getEnchantments(stack, enchantments);
 
             int protection = Utils.getEnchantmentLevel(enchantments, Enchantments.PROTECTION);
