@@ -23,10 +23,8 @@ before they are merged, and they will be dropped from this branch as they land.
 | Config saves are not atomic when `/tmp` is a separate mount, which truncates the file first | [#6630](https://github.com/MeteorDevelopment/meteor-client/pull/6630) |
 | ESP fade distance is squared twice, so the fade starts at 9 blocks on a setting of 3 | [#6631](https://github.com/MeteorDevelopment/meteor-client/pull/6631) |
 | Bold Italic fonts are saved as `"Bold Italic"` and loaded with `valueOf`, so they never persist | [#6632](https://github.com/MeteorDevelopment/meteor-client/pull/6632) |
-| Recoloured lightning uses the segment index as an x coordinate | [#6633](https://github.com/MeteorDevelopment/meteor-client/pull/6633) |
 | The enchantment name cache is the one cache not cleared on resource reload | [#6634](https://github.com/MeteorDevelopment/meteor-client/pull/6634) |
 | Hud text width counts the shadow offset twice, padding every shadowed element | [#6635](https://github.com/MeteorDevelopment/meteor-client/pull/6635) |
-| Binds without modifiers stop matching while a modifier is held, so a bind on Left Alt is dead | [#6597](https://github.com/MeteorDevelopment/meteor-client/pull/6597) |
 
 ## Network changes
 
