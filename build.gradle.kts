@@ -19,6 +19,10 @@ base {
 }
 
 repositories {
+    // the fork's baritone build, published with ./gradlew publishToMavenLocal
+    mavenLocal {
+        content { includeGroup("meteordevelopment") }
+    }
     maven {
         name = "meteor-maven"
         url = uri("https://maven.meteordev.org/releases")
