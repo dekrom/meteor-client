@@ -7,6 +7,7 @@ package meteordevelopment.meteorclient.systems.modules.misc;
 
 //Created by squidoodly
 
+import com.mojang.blaze3d.Blaze3D;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import meteordevelopment.discordipc.DiscordIPC;
 import meteordevelopment.discordipc.RichPresence;
@@ -36,6 +37,7 @@ import net.minecraft.client.gui.screens.worldselection.SelectWorldScreen;
 import net.minecraft.realms.RealmsScreen;
 import org.meteordev.starscript.Script;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -287,7 +289,7 @@ public class DiscordPresence extends Module {
     @Override
     public WWidget getWidget(GuiTheme theme) {
         WButton help = theme.button("Open documentation.");
-        help.action = () -> Utils.openUri("https://github.com/MeteorDevelopment/meteor-client/wiki/Starscript");
+        help.action = () -> Blaze3D.openUri(URI.create("https://github.com/MeteorDevelopment/meteor-client/wiki/Starscript"));
 
         return help;
     }

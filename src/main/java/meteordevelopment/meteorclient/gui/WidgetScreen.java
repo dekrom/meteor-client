@@ -5,7 +5,6 @@
 
 package meteordevelopment.meteorclient.gui;
 
-import com.mojang.blaze3d.platform.MacosUtil;
 import com.mojang.blaze3d.platform.cursor.CursorTypes;
 import meteordevelopment.meteorclient.MeteorClient;
 import meteordevelopment.meteorclient.gui.renderer.GuiDebugRenderer;
@@ -25,6 +24,7 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import org.apache.commons.lang3.SystemUtils;
 import org.jspecify.annotations.NonNull;
 import org.lwjgl.sdl.SDLMouse;
 
@@ -237,7 +237,7 @@ public abstract class WidgetScreen extends Screen {
             return true;
         }
 
-        boolean control = MacosUtil.IS_MACOS ? Input.modifiersMatch(input.modifiers(), MOD_SUPER) : Input.modifiersMatch(input.modifiers(), MOD_CONTROL);
+        boolean control = SystemUtils.IS_OS_MAC ? Input.modifiersMatch(input.modifiers(), MOD_SUPER) : Input.modifiersMatch(input.modifiers(), MOD_CONTROL);
 
         return (control && input.key() == KEY_C && toClipboard())
             || (control && input.key() == KEY_V && fromClipboard());

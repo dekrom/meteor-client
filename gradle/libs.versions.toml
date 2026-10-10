@@ -7,13 +7,13 @@ fabric-api = "0.162.0+26.3"
 
 # Plugins
 # Loom (https://github.com/FabricMC/fabric-loom)
-loom = "1.17-SNAPSHOT"
+loom = "1.18-SNAPSHOT"
 # Error Prone Plugin (https://github.com/tbroyer/gradle-errorprone-plugin)
 errorprone-plugin = "5.1.1"
 
 # Mods
 # Baritone (https://github.com/MeteorDevelopment/baritone)
-baritone = "26.3-SNAPSHOT"
+baritone = "26.1-SNAPSHOT"
 # Sodium (https://github.com/CaffeineMC/sodium-fabric)
 sodium = "mc26.3-0.9.2-fabric"
 # Lithium (https://github.com/CaffeineMC/lithium-fabric)

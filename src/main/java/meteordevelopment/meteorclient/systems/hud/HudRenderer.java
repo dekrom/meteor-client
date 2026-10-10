@@ -102,6 +102,7 @@ public class HudRenderer {
             }
         } else {
             VanillaTextRenderer.INSTANCE.end();
+            VanillaTextRenderer.INSTANCE.scaleIndividually = false;
         }
 
         for (Runnable task : postTasks) task.run();

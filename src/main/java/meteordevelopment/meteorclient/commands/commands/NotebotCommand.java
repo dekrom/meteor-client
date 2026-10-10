@@ -5,6 +5,7 @@
 
 package meteordevelopment.meteorclient.commands.commands;
 
+import com.mojang.blaze3d.Blaze3D;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
@@ -18,7 +19,6 @@ import meteordevelopment.meteorclient.events.packets.PacketEvent;
 import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.misc.Notebot;
-import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.notebot.song.Note;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.multiplayer.ClientSuggestionProvider;
@@ -29,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ public class NotebotCommand extends Command {
     @Override
     public void build(LiteralArgumentBuilder<ClientSuggestionProvider> builder) {
         builder.then(literal("help").executes(_ -> {
-            Utils.openUri("https://github.com/MeteorDevelopment/meteor-client/wiki/Notebot-Guide");
+            Blaze3D.openUri(URI.create("https://github.com/MeteorDevelopment/meteor-client/wiki/Notebot-Guide"));
             return SINGLE_SUCCESS;
         }));
 
