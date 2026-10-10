@@ -26,6 +26,7 @@ import meteordevelopment.meteorclient.systems.hud.HudElement;
 import meteordevelopment.meteorclient.systems.hud.HudElementInfo;
 import meteordevelopment.meteorclient.systems.hud.HudRenderer;
 import meteordevelopment.meteorclient.utils.misc.Keybind;
+import meteordevelopment.meteorclient.utils.misc.input.Input;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.meteorclient.utils.misc.input.KeyBinds;
 import meteordevelopment.meteorclient.utils.render.color.Color;
@@ -38,7 +39,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.Mth;
-import org.lwjgl.sdl.SDLKeycode;
+import org.lwjgl.sdl.SDLScancode;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -391,7 +392,7 @@ public class KeyboardHud extends HudElement {
         xPos += l.px(KeyDimensions.ALT) + l.keyGap;
         keys.add(l.key(Keybind.fromKey(KEY_RGUI), xPos, row5, KeyDimensions.GUI));
         xPos += l.px(KeyDimensions.GUI) + l.keyGap;
-        keys.add(l.key(Keybind.fromKey(SDLKeycode.SDLK_MENU), xPos, row5, KeyDimensions.MENU));
+        keys.add(l.key(Keybind.fromKey(SDLScancode.SDL_SCANCODE_APPLICATION), xPos, row5, KeyDimensions.MENU));
         xPos += l.px(KeyDimensions.MENU) + l.keyGap;
         keys.add(l.key(Keybind.fromKey(KEY_RCONTROL), xPos, row5, KeyDimensions.CTRL));
         keys.add(l.key(Keybind.fromKey(KEY_LEFT), l.ux(15.5), row5));
@@ -452,7 +453,7 @@ public class KeyboardHud extends HudElement {
         // Row 4: LShift, ISO \| key, ZXCV..., RShift, Up
         keys.add(l.key(Keybind.fromKey(KEY_LSHIFT), 0, row4, KeyDimensions.LEFT_SHIFT_ISO));
         double lShiftEnd = l.px(KeyDimensions.LEFT_SHIFT_ISO) + l.keyGap;
-        //keys.add(l.key(Keybind.fromKey(KEY_WORLD_2), lShiftEnd, row4)); TODO: wtf is WORLD_2
+        keys.add(l.key(Keybind.fromKey(SDLScancode.SDL_SCANCODE_NONUSBACKSLASH), lShiftEnd, row4));
 
         int[] row4Keys = {KEY_Z, KEY_X, KEY_C, KEY_V, KEY_B, KEY_N, KEY_M, KEY_COMMA, KEY_PERIOD, KEY_SLASH};
         for (int i = 0; i < row4Keys.length; i++)
@@ -476,7 +477,7 @@ public class KeyboardHud extends HudElement {
         xPos += l.px(KeyDimensions.ALT) + l.keyGap;
         keys.add(l.key(Keybind.fromKey(KEY_RGUI), xPos, row5, KeyDimensions.GUI));
         xPos += l.px(KeyDimensions.GUI) + l.keyGap;
-        keys.add(l.key(Keybind.fromKey(SDLKeycode.SDLK_MENU), xPos, row5, KeyDimensions.MENU));
+        keys.add(l.key(Keybind.fromKey(SDLScancode.SDL_SCANCODE_APPLICATION), xPos, row5, KeyDimensions.MENU));
         xPos += l.px(KeyDimensions.MENU) + l.keyGap;
         keys.add(l.key(Keybind.fromKey(KEY_RCONTROL), xPos, row5, KeyDimensions.CTRL));
         keys.add(l.key(Keybind.fromKey(KEY_LEFT), l.ux(15.5), row5));
@@ -734,13 +735,13 @@ public class KeyboardHud extends HudElement {
             if (keybind != null) {
                 if (!keybind.isSet()) return false;
                 return keybind.isKey()
-                    ? Type.KEYBOARD.getOrCreate(keybind.getValue()).getValue() != RELEASE
-                    : Type.MOUSE.getOrCreate(keybind.getValue()).getValue() != RELEASE;
+                    ? InputConstants.isKeyDown(keybind.getValue())
+                    : Input.isButtonPressed(keybind.getValue());
             } else {
                 int key = ((KeyMappingAccessor) binding).meteor$getKey().getValue();
                 return key >= 0 && key < 8
-                    ? Type.MOUSE.getOrCreate(key).getValue() != RELEASE
-                    : Type.KEYBOARD.getOrCreate(key).getValue() != RELEASE;
+                    ? Input.isButtonPressed(key)
+                    : InputConstants.isKeyDown(key);
             }
         }
 

@@ -13,7 +13,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Set;
 
 public class Keybind implements ISerializable<Keybind>, ICopyable<Keybind> {
     public enum Modifier {
@@ -21,8 +25,6 @@ public class Keybind implements ISerializable<Keybind>, ICopyable<Keybind> {
         CONTROL(InputConstants.MOD_CONTROL),
         ALT(InputConstants.MOD_ALT),
         SUPER(InputConstants.MOD_SUPER),
-        CAPS_LOCK(InputConstants.MOD_CAPS_LOCK),
-        NUM_LOCK(InputConstants.MOD_NUM_LOCK),
         ;
 
         private static final Modifier[] VALUES = values();
@@ -39,8 +41,6 @@ public class Keybind implements ISerializable<Keybind>, ICopyable<Keybind> {
                 case SUPER -> Input.isKeyPressed(InputConstants.KEY_LGUI) || Input.isKeyPressed(InputConstants.KEY_RGUI);
                 case ALT -> Input.isKeyPressed(InputConstants.KEY_LALT) || Input.isKeyPressed(InputConstants.KEY_RALT);
                 case SHIFT -> Input.isKeyPressed(InputConstants.KEY_LSHIFT) || Input.isKeyPressed(InputConstants.KEY_RSHIFT);
-                case CAPS_LOCK -> Input.isKeyPressed(InputConstants.KEY_CAPSLOCK);
-                case NUM_LOCK -> Input.isKeyPressed(InputConstants.KEY_NUMLOCK);
             };
         }
 
@@ -180,7 +180,7 @@ public class Keybind implements ISerializable<Keybind>, ICopyable<Keybind> {
     }
 
     private boolean isKeyMod(InputConstants.Key key) {
-        return key.getValue() >= InputConstants.KEY_LALT && key.getValue() <= InputConstants.KEY_RGUI;
+        return key.getValue() >= InputConstants.KEY_LCONTROL && key.getValue() <= InputConstants.KEY_RGUI;
     }
 
     @Override
@@ -199,8 +199,6 @@ public class Keybind implements ISerializable<Keybind>, ICopyable<Keybind> {
         if (modifiers.contains(Modifier.SUPER)) label.append("Cmd + ");
         if (modifiers.contains(Modifier.ALT)) label.append("Alt + ");
         if (modifiers.contains(Modifier.SHIFT)) label.append("Shift + ");
-        if (modifiers.contains(Modifier.CAPS_LOCK)) label.append("Caps Lock + ");
-        if (modifiers.contains(Modifier.NUM_LOCK)) label.append("Num Lock + ");
         label.append(key.getDisplayName().getString());
 
         return label.toString();
