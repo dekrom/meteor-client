@@ -108,7 +108,6 @@
     "GlDeviceMixin",
     "GpuDeviceMixin",
     "GuiGraphicsExtractorAccessor",
-    "GuiGraphicsExtractorMixin",
     "GuiMessageMixin",
     "GuiMessageVisibleMixin",
     "GuiMixin",
