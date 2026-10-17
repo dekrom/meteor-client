@@ -8,6 +8,7 @@ package meteordevelopment.meteorclient.systems.modules.movement;
 import meteordevelopment.meteorclient.events.meteor.KeyEvent;
 import meteordevelopment.meteorclient.events.meteor.MouseButtonEvent;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
+import meteordevelopment.meteorclient.gui.GuiKeyEvents;
 import meteordevelopment.meteorclient.gui.WidgetScreen;
 import meteordevelopment.meteorclient.mixin.CreativeInventoryScreenAccessor;
 import meteordevelopment.meteorclient.settings.*;
@@ -19,7 +20,9 @@ import meteordevelopment.meteorclient.utils.misc.input.Input;
 import meteordevelopment.meteorclient.utils.misc.input.KeyAction;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.client.gui.screen.ChatScreen;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.*;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.item.ItemGroups;
 import net.minecraft.util.math.MathHelper;
@@ -87,12 +90,26 @@ public class GUIMove extends Module {
         .build()
     );
 
+    private boolean wasSkipped = true;
+
     public GUIMove() {
         super(Categories.Movement, "gui-move", "Allows you to perform various actions while in GUIs.");
     }
 
     @Override
+    public void onActivate() {
+        wasSkipped = true;
+    }
+
+    @Override
     public void onDeactivate() {
+        wasSkipped = true;
+        unpress();
+    }
+
+    private void unpress() {
+        if (mc == null || mc.options == null) return;
+
         mc.options.forwardKey.setPressed(false);
         mc.options.backKey.setPressed(false);
         mc.options.leftKey.setPressed(false);
@@ -104,16 +121,14 @@ public class GUIMove extends Module {
     }
 
     public boolean disableSpace() {
-        return isActive() && jump.get() && mc.options.jumpKey.isDefault();
+        return isActive() && jump.get() && mc.options.jumpKey.isDefault() && !skip();
     }
     public boolean disableArrows() {
-        return isActive() && arrowsRotate.get();
+        return isActive() && arrowsRotate.get() && !skip();
     }
 
     private void onInput(int key, KeyAction action, boolean mouse) {
-        if (skip()) return;
-        if (screens.get() == Screens.GUI && !(mc.currentScreen instanceof WidgetScreen)) return;
-        if (screens.get() == Screens.Inventory && mc.currentScreen instanceof WidgetScreen) return;
+        if (checkSkip()) return;
 
         pass(mc.options.forwardKey, key, action, mouse);
         pass(mc.options.backKey, key, action, mouse);
@@ -137,9 +152,7 @@ public class GUIMove extends Module {
 
     @EventHandler
     private void onRender3D(Render3DEvent event) {
-        if (skip()) return;
-        if (screens.get() == Screens.GUI && !(mc.currentScreen instanceof WidgetScreen)) return;
-        if (screens.get() == Screens.Inventory && mc.currentScreen instanceof WidgetScreen) return;
+        if (checkSkip()) return;
 
         float rotationDelta = Math.min((float) (rotateSpeed.get() * event.frameTime * 20f), 100);
 
@@ -179,7 +192,35 @@ public class GUIMove extends Module {
         if (action == KeyAction.Release) bind.setPressed(false);
     }
 
+    private boolean checkSkip() {
+        if (skip()) {
+            if (!wasSkipped) {
+                wasSkipped = true;
+                if (mc != null && mc.currentScreen != null) unpress();
+            }
+            return true;
+        }
+
+        wasSkipped = false;
+        return false;
+    }
+
     public boolean skip() {
-        return mc.currentScreen == null || (mc.currentScreen instanceof CreativeInventoryScreen && CreativeInventoryScreenAccessor.meteor$getSelectedTab() == ItemGroups.getSearchGroup()) || mc.currentScreen instanceof ChatScreen || mc.currentScreen instanceof SignEditScreen || mc.currentScreen instanceof AnvilScreen || mc.currentScreen instanceof AbstractCommandBlockScreen || mc.currentScreen instanceof StructureBlockScreen;
+        return mc == null || skip(mc.currentScreen);
+    }
+
+    public boolean skip(Screen screen) {
+        if (screen == null
+            || !GuiKeyEvents.canUseKeys
+            || (screen instanceof CreativeInventoryScreen && CreativeInventoryScreenAccessor.meteor$getSelectedTab() == ItemGroups.getSearchGroup())
+            || screen instanceof ChatScreen
+            || screen instanceof AbstractSignEditScreen
+            || screen instanceof AnvilScreen
+            || screen instanceof AbstractCommandBlockScreen
+            || screen instanceof StructureBlockScreen
+            || (screen.getFocused() instanceof TextFieldWidget textField && textField.isActive())) return true;
+        if (screens.get() == Screens.GUI) return !(screen instanceof WidgetScreen);
+        if (screens.get() == Screens.Inventory) return !(screen instanceof HandledScreen<?>);
+        return !(screen instanceof WidgetScreen || screen instanceof HandledScreen<?>);
     }
 }
