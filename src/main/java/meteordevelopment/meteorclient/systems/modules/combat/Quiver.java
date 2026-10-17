@@ -13,15 +13,18 @@ import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.entity.EntityUtils;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.player.SlotUtils;
 import meteordevelopment.orbit.EventHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.BowItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -112,6 +115,10 @@ public class Quiver extends Module {
 
     @Override
     public void onActivate() {
+        wasMainhand = true;
+        wasHotbar = false;
+        prevSlot = -1;
+
         bow = InvUtils.find(Items.BOW);
         if (!shouldQuiver()) return;
 
@@ -123,21 +130,22 @@ public class Quiver extends Module {
         timer = 0;
 
         if (!bow.isMainHand()) {
+            wasMainhand = false;
             if (wasHotbar) InvUtils.swap(bow.slot(), true);
             else InvUtils.move().from(mc.player.getInventory().selectedSlot).to(prevSlot);
-        } else wasMainhand = true;
+        }
 
         arrowSlots.clear();
         List<StatusEffect> usedEffects = new ArrayList<>();
 
-        for (int i = mc.player.getInventory().size(); i > 0; i--) {
-            if (i == mc.player.getInventory().selectedSlot) continue;
+        for (int i = PlayerInventory.OFF_HAND_SLOT; i >= SlotUtils.HOTBAR_START; i--) {
+            if (SlotUtils.isArmor(i) || i == mc.player.getInventory().selectedSlot) continue;
 
             ItemStack item = mc.player.getInventory().getStack(i);
 
             if (item.getItem() != Items.TIPPED_ARROW)  continue;
 
-            Iterator<StatusEffectInstance> effects = item.getItem().getComponents().get(DataComponentTypes.POTION_CONTENTS).getEffects().iterator();
+            Iterator<StatusEffectInstance> effects = item.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).getEffects().iterator();
 
             if (!effects.hasNext()) continue;
 
@@ -147,16 +155,18 @@ public class Quiver extends Module {
                 && !usedEffects.contains(effect)
                 && (!hasEffect(effect) || !checkEffects.get())) {
                 usedEffects.add(effect);
-                arrowSlots.add(i);
+                arrowSlots.add(i == PlayerInventory.OFF_HAND_SLOT ? SlotUtils.OFFHAND : i);
             }
         }
     }
 
     @Override
     public void onDeactivate() {
+        mc.options.useKey.setPressed(false);
+
         if (!wasMainhand) {
             if (wasHotbar) InvUtils.swapBack();
-            else InvUtils.move().from(mc.player.getInventory().selectedSlot).to(prevSlot);
+            else if (prevSlot != -1) InvUtils.move().from(mc.player.getInventory().selectedSlot).to(prevSlot);
         }
     }
 
@@ -177,7 +187,7 @@ public class Quiver extends Module {
         boolean charging = mc.options.useKey.isPressed();
 
         if (!charging) {
-            InvUtils.move().from(arrowSlots.getFirst()).to(9);
+            if (arrowSlots.getFirst() != 9) InvUtils.move().from(arrowSlots.getFirst()).to(9);
             mc.options.useKey.setPressed(true);
         } else {
             if (BowItem.getPullProgress(mc.player.getItemUseTime()) >= 0.12) {
@@ -229,11 +239,11 @@ public class Quiver extends Module {
     }
 
     private boolean headIsOpen() {
-        testPos.set(mc.player.getBlockPos().add(0, 1, 0));
+        testPos.set(mc.player.getBlockPos(), 0, 1, 0);
         BlockState pos1 = mc.world.getBlockState(testPos);
         if (((AbstractBlockAccessor) pos1.getBlock()).isCollidable())  return false;
 
-        testPos.add(0, 1, 0);
+        testPos.move(0, 1, 0);
         BlockState pos2 = mc.world.getBlockState(testPos);
         return !((AbstractBlockAccessor) pos2.getBlock()).isCollidable();
     }
@@ -250,7 +260,7 @@ public class Quiver extends Module {
         for (Direction dir : Direction.values()) {
             if (dir == Direction.UP || dir == Direction.DOWN) continue;
 
-            testPos.set(target.getBlockPos()).offset(dir);
+            testPos.set(target.getBlockPos(), dir);
             Block block = mc.world.getBlockState(testPos).getBlock();
 
             if (block != Blocks.OBSIDIAN && block != Blocks.BEDROCK && block != Blocks.RESPAWN_ANCHOR
