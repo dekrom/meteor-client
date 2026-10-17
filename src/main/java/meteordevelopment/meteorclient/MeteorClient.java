@@ -18,6 +18,7 @@ import meteordevelopment.meteorclient.systems.Systems;
 import meteordevelopment.meteorclient.systems.config.Config;
 import meteordevelopment.meteorclient.systems.hud.screens.AddHudElementScreen;
 import meteordevelopment.meteorclient.systems.hud.screens.HudEditorScreen;
+import meteordevelopment.meteorclient.systems.hud.screens.HudElementPresetsScreen;
 import meteordevelopment.meteorclient.systems.hud.screens.HudElementScreen;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Modules;
@@ -188,7 +189,8 @@ public class MeteorClient implements ClientModInitializer {
                 // to align some items with the hotbar or chat
                 mc.options.hideGui = !(event.screen instanceof HudEditorScreen)
                     && !(event.screen instanceof AddHudElementScreen)
-                    && !(event.screen instanceof HudElementScreen);
+                    && !(event.screen instanceof HudElementScreen)
+                    && !(event.screen instanceof HudElementPresetsScreen);
             }
         } else {
             if (wasWidgetScreen) mc.options.hideGui = wasHudHiddenRoot;
