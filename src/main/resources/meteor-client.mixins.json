@@ -194,6 +194,7 @@
     "TridentItemMixin",
     "Vec3Mixin",
     "VisGraphMixin",
+    "VulkanCommandEncoderMixin",
     "VulkanDeviceMixin",
     "WebBlockMixin",
     "WingsLayerMixin",
