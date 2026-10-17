@@ -11,6 +11,7 @@ import meteordevelopment.meteorclient.events.world.TickEvent;
 import meteordevelopment.meteorclient.settings.*;
 import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
+import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.utils.Utils;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
 import meteordevelopment.orbit.EventHandler;
@@ -28,6 +29,7 @@ import net.minecraft.item.MaceItem;
 import net.minecraft.item.TridentItem;
 import net.minecraft.registry.tag.EntityTypeTags;
 import net.minecraft.registry.tag.ItemTags;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -298,6 +300,14 @@ public class AttributeSwap extends Module {
         .build()
     );
 
+    private final Setting<Boolean> spear = sgWeapon.add(new BoolSetting.Builder()
+        .name("spear")
+        .description("Works while holding a spear.")
+        .defaultValue(true)
+        .visible(onlyOnWeapon::get)
+        .build()
+    );
+
     private final Setting<Boolean> trident = sgWeapon.add(new BoolSetting.Builder()
         .name("trident")
         .description("Works while holding a trident.")
@@ -321,18 +331,27 @@ public class AttributeSwap extends Module {
 
     @EventHandler
     private void onAttack(DoAttackEvent event) {
-        if (mc.crosshairTarget.getType() == HitResult.Type.BLOCK || !canSwapByWeapon()) return;
+        if (mc.crosshairTarget == null || mc.crosshairTarget.getType() == HitResult.Type.BLOCK || !canSwapByWeapon()) return;
+
+        if (mc.crosshairTarget instanceof EntityHitResult entityHitResult) {
+            if (mode.get() == Mode.Simple) {
+                if (!swapOnMiss.get()) {
+                    performSwap(entityHitResult.getEntity());
+                    return;
+                }
+            } else if (isWithinMeleeRange(entityHitResult)) {
+                performSwap(entityHitResult.getEntity());
+                return;
+            }
+        }
 
         if (mode.get() == Mode.Smart && spearSwapping.get()) {
             if (spearHitbox.get()) {
-                Entity target = getTargetEntity();
+                Entity target = mc.crosshairTarget instanceof EntityHitResult entityHitResult ? entityHitResult.getEntity() : getTargetEntity();
                 if (target != null) {
-                    if (mc.player.distanceTo(target) <= mc.player.getEntityInteractionRange() + 0.5) return;
                     int spearSlot = getSmartSpearSlot(false);
-                    if (spearSlot != -1) {
-                        doSwap(spearSlot);
-                        return;
-                    }
+                    if (spearSlot != -1) doSwap(spearSlot);
+                    return;
                 }
             }
 
@@ -395,6 +414,7 @@ public class AttributeSwap extends Module {
                 (shovel.get() && item.isIn(ItemTags.SHOVELS)) ||
                 (hoe.get() && item.isIn(ItemTags.HOES)) ||
                 (mace.get() && item.getItem() instanceof MaceItem) ||
+                (spear.get() && item.isIn(ItemTags.SPEARS)) ||
                 (trident.get() && item.getItem() instanceof TridentItem)
         );
     }
@@ -408,7 +428,7 @@ public class AttributeSwap extends Module {
             if (axeSlot != -1) return axeSlot;
         }
 
-        boolean isFalling = mc.player.fallDistance > 1.5;
+        boolean isFalling = mc.player.fallDistance > 1.5 && !mc.player.isGliding();
         boolean durability = smartDurability.get();
 
         boolean isLiving = target instanceof LivingEntity;
@@ -440,20 +460,33 @@ public class AttributeSwap extends Module {
         return bestSlot;
     }
 
+    private boolean isWithinMeleeRange(EntityHitResult hitResult) {
+        double range = mc.player.getEntityInteractionRange();
+        return hitResult.getPos().squaredDistanceTo(mc.player.getCameraPosVec(1.0f)) <= range * range;
+    }
+
     private int getSmartSpearSlot(boolean requireLunge) {
+        int selectedSlot = mc.player.getInventory().getSelectedSlot();
+        if (isValidSpear(mc.player.getInventory().getStack(selectedSlot), requireLunge)) {
+            return selectedSlot;
+        }
+
         for (int i = 0; i < 9; i++) {
-            if (i == mc.player.getInventory().getSelectedSlot()) continue;
-            ItemStack stack = mc.player.getInventory().getStack(i);
-            if (!stack.isIn(ItemTags.SPEARS)) continue;
-
-            boolean hasLunge = Utils.getEnchantmentLevel(stack, Enchantments.LUNGE) > 0;
-            if (requireLunge && !hasLunge) continue;
-            if (!requireLunge && excludeLungeFromHitbox.get() && hasLunge) continue;
-
-            return i;
+            if (i == selectedSlot) continue;
+            if (isValidSpear(mc.player.getInventory().getStack(i), requireLunge)) {
+                return i;
+            }
         }
 
         return -1;
+    }
+
+    private boolean isValidSpear(ItemStack stack, boolean requireLunge) {
+        if (!stack.isIn(ItemTags.SPEARS)) return false;
+
+        boolean hasLunge = Utils.getEnchantmentLevel(stack, Enchantments.LUNGE) > 0;
+        if (requireLunge && !hasLunge) return false;
+        return requireLunge || !excludeLungeFromHitbox.get() || !hasLunge;
     }
 
     private Entity getTargetEntity() {
@@ -466,10 +499,12 @@ public class AttributeSwap extends Module {
 
         Entity target = null;
         double closestDistance = maxDistance * maxDistance;
+        Hitboxes hitboxes = Modules.get() != null ? Modules.get().get(Hitboxes.class) : null;
 
         for (Entity entity : mc.world.getOtherEntities(mc.player, box, e -> !e.isSpectator() && e.canHit())) {
             // expanding entity's hitbox by 0.15 to simulate spear's actual hitbox margin
-            Box expandedBox = entity.getBoundingBox().expand(0.150);
+            double extraMargin = hitboxes != null ? hitboxes.getEntityValue(entity) : 0;
+            Box expandedBox = entity.getBoundingBox().expand(0.150 + extraMargin);
 
             if (expandedBox.raycast(start, end).isPresent()) {
                 double distSq = start.squaredDistanceTo(entity.getX(), entity.getY(), entity.getZ());
