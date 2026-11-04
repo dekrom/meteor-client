@@ -50,6 +50,26 @@ update markers on the title screen and the commits screen (GitHub), and `.name-h
 The point of the last one is that it fails closed: a future upstream feature that adds a new
 endpoint gets blocked by default rather than silently starting to phone home after a rebase.
 
+## Other fixes
+
+Fixes this fork carries that are not in the table above.
+
+- Caps Lock and Num Lock, which 26.3 reports in every key event, were recorded as modifiers of a bind
+- The keyboard hud read key state wrongly and drew the menu, ISO and A to D keys from the wrong codes
+- NoRender's block particle setting also muted the block breaking sound
+- Entity shaders ran `LevelRenderer#executeOutline` outside the main pass
+- HandView and ItemPhysics rotations accumulated every frame
+- Trail crashed on particle types that need parameters
+- Better Chat timestamps crashed on a fresh install until the seconds setting was changed once
+
+## Compatibility with earlier builds of this fork
+
+Upstream's own 26.3 moved CrystalAura's swing modes to `utils.player.SwingMode`. Addons were built against
+the earlier 26.3 builds of this fork, so `CrystalAura.swingMode` stays a `Setting<CrystalAura.SwingMode>`
+and `Input.modifiersMatch` stays. An addon built against upstream's 26.3 that reads `CrystalAura.swingMode`
+as `utils.player.SwingMode` will not work with this build. Upstream also changed `BlockUtils.interact` to
+return an `InteractionResult`, so an addon that calls the old `void` version needs a rebuild.
+
 ## Building
 
 ```bash
