@@ -148,7 +148,10 @@ public abstract class GuiTheme implements ISerializable<GuiTheme> {
     public WWidget module(Module module) {
         return module(module, module.title);
     }
-    public abstract WWidget module(Module module, String title);
+    // Themes built against upstream's 1.21.4 build only override module(Module); each default reaches the other
+    public WWidget module(Module module, String title) {
+        return module(module);
+    }
 
     public abstract WQuad quad(Color color);
 
