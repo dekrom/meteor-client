@@ -155,10 +155,9 @@ public abstract class GuiTheme implements ISerializable<GuiTheme> {
 
     public abstract WAccount account(WidgetScreen screen, Account<?> account);
 
-    public WWidget module(Module module) {
-        return module(module, module.title);
-    }
-    // Themes built against upstream's 1.21.8 build only override module(Module); each default reaches the other
+    public abstract WWidget module(Module module);
+
+    // Themes built against upstream's 1.21.8 build only implement module(Module)
     public WWidget module(Module module, String title) {
         return module(module);
     }
