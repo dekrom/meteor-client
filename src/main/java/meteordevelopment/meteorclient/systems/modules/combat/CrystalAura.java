@@ -1358,6 +1358,30 @@ public class CrystalAura extends Module {
         }
     }
 
+    // Kept for addons compiled against the earlier 26.3 builds of this fork, which reference CrystalAura.SwingMode
+    public enum SwingMode {
+        Both,
+        Packet,
+        Client,
+        None;
+
+        public boolean packet() {
+            return this == Packet || this == Both;
+        }
+
+        public boolean client() {
+            return this == Client || this == Both;
+        }
+
+        public void attackSwing(InteractionHand hand) {
+            meteordevelopment.meteorclient.utils.player.SwingMode.valueOf(name()).attackSwing(hand);
+        }
+
+        public void interactSwing(InteractionHand hand) {
+            meteordevelopment.meteorclient.utils.player.SwingMode.valueOf(name()).interactSwing(hand);
+        }
+    }
+
     public enum RenderMode {
         Normal,
         Smooth,
