@@ -738,10 +738,10 @@ public class KeyboardHud extends HudElement {
                     ? InputConstants.isKeyDown(keybind.getValue())
                     : Input.isButtonPressed(keybind.getValue());
             } else {
-                int key = ((KeyMappingAccessor) binding).meteor$getKey().getValue();
-                return key >= 0 && key < 8
-                    ? Input.isButtonPressed(key)
-                    : InputConstants.isKeyDown(key);
+                InputConstants.Key key = ((KeyMappingAccessor) binding).meteor$getKey();
+                return key.getType() == InputConstants.Type.MOUSE
+                    ? Input.isButtonPressed(key.getValue())
+                    : InputConstants.isKeyDown(key.getValue());
             }
         }
 
