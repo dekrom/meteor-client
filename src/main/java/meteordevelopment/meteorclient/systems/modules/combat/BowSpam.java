@@ -14,7 +14,9 @@ import meteordevelopment.meteorclient.systems.modules.Categories;
 import meteordevelopment.meteorclient.systems.modules.Module;
 import meteordevelopment.meteorclient.utils.player.FindItemResult;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.player.SlotUtils;
 import meteordevelopment.orbit.EventHandler;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ArrowItem;
 import net.minecraft.item.CrossbowItem;
 import net.minecraft.item.ItemStack;
@@ -93,7 +95,7 @@ public class BowSpam extends Module {
                     FindItemResult valid = InvUtils.find(stack -> stack.isEmpty() || stack.isOf(Items.CROSSBOW) || stack.isOf(Items.ARROW), 0, 8);
                     if (!valid.found()) return;
 
-                    InvUtils.quickSwap().fromId(valid.slot()).to(crossbow.slot());
+                    InvUtils.quickSwap().fromId(valid.slot()).to(crossbow.slot() == PlayerInventory.OFF_HAND_SLOT ? SlotUtils.OFFHAND : crossbow.slot());
                     slot = valid.slot();
                 }
 
