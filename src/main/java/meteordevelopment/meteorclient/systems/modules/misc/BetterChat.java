@@ -292,6 +292,7 @@ public class BetterChat extends Module {
         }
 
         if (timestamps.get()) {
+            if (dateFormat == null) updateDateFormat();
             Text timestamp = Text.literal("<" + dateFormat.format(new Date()) + "> ").formatted(Formatting.GRAY);
 
             message = Text.empty().append(timestamp).append(message);
