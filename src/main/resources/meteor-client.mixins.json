@@ -14,6 +14,7 @@
     "AbstractFurnaceScreenMixin",
     "AbstractSignBlockEntityRendererMixin",
     "AbstractSignEditScreenAccessor",
+    "AbstractSignEditScreenMixin",
     "ArmorFeatureRendererMixin",
     "ArmorStandEntityRendererMixin",
     "BakedQuadMixin",
