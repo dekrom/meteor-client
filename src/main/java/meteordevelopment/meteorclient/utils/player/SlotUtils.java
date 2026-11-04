@@ -22,21 +22,16 @@ import net.minecraft.screen.slot.SlotActionType;
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class SlotUtils {
-    /**
-     * These constants refer to the slot index of relevant player slots. They are used when dealing directly with the
-     * player inventory - e.g. {@code mc.player.getInventory().getSelectedSlot()} returns the slot index of your
-     * selected slot (i.e. main hand).
-     *
-     * @see net.minecraft.entity.player.PlayerInventory
-     * @see Slot#index
-     */
     public static final int HOTBAR_START = 0;
     public static final int HOTBAR_END = 8;
+
+    public static final int OFFHAND = 45;
+
     public static final int MAIN_START = 9;
     public static final int MAIN_END = 35;
+
     public static final int ARMOR_START = 36;
     public static final int ARMOR_END = 39;
-    public static final int OFFHAND = 40;
 
     private SlotUtils() {
     }
@@ -85,7 +80,6 @@ public class SlotUtils {
     private static int survivalInventory(int i) {
         if (isHotbar(i)) return 36 + i;
         if (isArmor(i)) return 5 + (i - 36);
-        if (i == OFFHAND) return 45;
         return i;
     }
 
