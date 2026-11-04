@@ -8,20 +8,34 @@ import meteordevelopment.meteorclient.renderer.FullScreenRenderer;
 import meteordevelopment.meteorclient.renderer.MeshRenderer;
 import net.minecraft.client.gl.Framebuffer;
 import net.minecraft.client.gl.SimpleFramebuffer;
+import net.minecraft.client.render.OutlineVertexConsumerProvider;
+import net.minecraft.entity.Entity;
 
 import static meteordevelopment.meteorclient.MeteorClient.mc;
 import static org.lwjgl.glfw.GLFW.glfwGetTime;
 
 public abstract class PostProcessShader {
-    protected final RenderPipeline pipeline;
-    public final Framebuffer framebuffer;
+    public OutlineVertexConsumerProvider vertexConsumerProvider;
+    public Framebuffer framebuffer;
+    protected RenderPipeline pipeline;
+
+    // Kept with init(RenderPipeline) for shaders from addons built against upstream's 1.21.5 build
+    public PostProcessShader() {}
 
     protected PostProcessShader(RenderPipeline pipeline) {
         this.pipeline = pipeline;
         this.framebuffer = new SimpleFramebuffer(MeteorClient.NAME + " PostProcessShader " + this.getClass().getSimpleName(), mc.getWindow().getFramebufferWidth(), mc.getWindow().getFramebufferHeight(), true);
     }
 
+    // Kept for addons built against upstream's 1.21.5 build
+    public void init(RenderPipeline pipeline) {
+        vertexConsumerProvider = new OutlineVertexConsumerProvider(mc.getBufferBuilders().getEntityVertexConsumers());
+        framebuffer = new SimpleFramebuffer(MeteorClient.NAME + " PostProcessShader", mc.getWindow().getFramebufferWidth(), mc.getWindow().getFramebufferHeight(), true);
+        this.pipeline = pipeline;
+    }
+
     protected abstract boolean shouldDraw();
+    public abstract boolean shouldDraw(Entity entity);
 
     protected void preDraw() {}
     protected void postDraw() {}
@@ -32,6 +46,17 @@ public abstract class PostProcessShader {
         if (this.shouldDraw()) {
             RenderSystem.getDevice().createCommandEncoder().clearColorTexture(framebuffer.getColorAttachment(), 0);
         }
+    }
+
+    // Kept for addons built against upstream's 1.21.5 build
+    public boolean beginRender() {
+        return shouldDraw();
+    }
+
+    // Kept for addons built against upstream's 1.21.5 build; the composite now normally draws in render()
+    public void endRender(Runnable draw) {
+        submitVertices(draw);
+        render();
     }
 
     public void submitVertices(Runnable draw) {

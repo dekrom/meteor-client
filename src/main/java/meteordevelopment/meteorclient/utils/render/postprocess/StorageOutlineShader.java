@@ -4,6 +4,7 @@ import com.mojang.blaze3d.systems.RenderPass;
 import meteordevelopment.meteorclient.renderer.MeteorRenderPipelines;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.render.StorageESP;
+import net.minecraft.entity.Entity;
 
 public class StorageOutlineShader extends PostProcessShader {
     private static StorageESP storageESP;
@@ -16,6 +17,11 @@ public class StorageOutlineShader extends PostProcessShader {
     protected boolean shouldDraw() {
         if (storageESP == null) storageESP = Modules.get().get(StorageESP.class);
         return storageESP.isShader();
+    }
+
+    @Override
+    public boolean shouldDraw(Entity entity) {
+        return true;
     }
 
     @Override
