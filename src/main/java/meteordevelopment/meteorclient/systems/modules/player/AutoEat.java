@@ -280,15 +280,19 @@ public class AutoEat extends Module {
     }
 
     /**
-     * Finds the best slot to eat from, preferring:
-     * offhand => hotbar => main inventory (if allowed).
+     * Finds the best slot to eat from: the best food in the hotbar, the offhand only when its food is better
+     * (the order upstream's 1.21.5 build used, which addons built against it expect), then the main inventory
+     * if allowed.
      */
     private int findSlot() {
-        // prefer offhand
-        if (isEdible(mc.player.getOffHandStack())) return SlotUtils.OFFHAND;
-
-        // if offhand empty, prefer best in hotbar
         int slot = findBestFood(SlotUtils.HOTBAR_START, SlotUtils.HOTBAR_END);
+
+        ItemStack offhand = mc.player.getOffHandStack();
+        if (isEdible(offhand) && (slot == -1 || prioritise.get().value(offhand.get(DataComponentTypes.FOOD))
+            > prioritise.get().value(mc.player.getInventory().getStack(slot).get(DataComponentTypes.FOOD)))) {
+            return SlotUtils.OFFHAND;
+        }
+
         if (slot != -1) return slot;
 
         // if allowed, search main inventory
