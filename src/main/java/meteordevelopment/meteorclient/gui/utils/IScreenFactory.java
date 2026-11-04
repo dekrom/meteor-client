@@ -8,7 +8,6 @@ package meteordevelopment.meteorclient.gui.utils;
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WidgetScreen;
 
-// Kept for addons built against upstream's 1.21.4 build
 public interface IScreenFactory {
     WidgetScreen createScreen(GuiTheme theme);
 }
