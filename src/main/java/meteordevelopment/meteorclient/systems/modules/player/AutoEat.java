@@ -24,6 +24,7 @@ import meteordevelopment.orbit.EventPriority;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
 import java.util.ArrayList;
@@ -132,7 +133,7 @@ public class AutoEat extends Module {
             }
 
             // Check if the item in current slot is not food anymore
-            if (mc.player.getInventory().getStack(slot).get(DataComponentTypes.FOOD) == null) {
+            if (getStack(slot).get(DataComponentTypes.FOOD) == null) {
                 int newSlot = findSlot();
 
                 // Stop if no food found
@@ -231,11 +232,15 @@ public class AutoEat extends Module {
         slot = findSlot();
         if (slot == -1) return false;
 
-        FoodComponent food = mc.player.getInventory().getStack(slot).get(DataComponentTypes.FOOD);
+        FoodComponent food = getStack(slot).get(DataComponentTypes.FOOD);
         if (food == null) return false;
 
         return thresholdMode.get().test(healthLow, hungerLow)
             && (mc.player.getHungerManager().isNotFull() ||  food.canAlwaysEat());
+    }
+
+    private ItemStack getStack(int slot) {
+        return slot == SlotUtils.OFFHAND ? mc.player.getOffHandStack() : mc.player.getInventory().getStack(slot);
     }
 
     private int findSlot() {
