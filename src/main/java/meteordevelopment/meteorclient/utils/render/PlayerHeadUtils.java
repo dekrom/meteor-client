@@ -21,7 +21,13 @@ public class PlayerHeadUtils {
         STEVE_HEAD = new PlayerHeadTexture();
     }
 
-    public static byte[] fetchHead(UUID id) {
+    // Kept for addons built against upstream's 1.21.8 build
+    public static PlayerHeadTexture fetchHead(UUID id) {
+        byte[] head = fetchHeadBytes(id);
+        return head != null ? new PlayerHeadTexture(head, true) : null;
+    }
+
+    public static byte[] fetchHeadBytes(UUID id) {
         if (id == null) return null;
 
         String url = getSkinUrl(id);

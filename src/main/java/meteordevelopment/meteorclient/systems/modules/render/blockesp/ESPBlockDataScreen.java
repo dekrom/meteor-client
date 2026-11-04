@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ESPBlockDataScreen extends WindowScreen {
     private final ESPBlockData blockData;
-    private final Setting<?> setting;
+    private final @Nullable Setting<?> setting;
     private final @Nullable Runnable firstChangeConsumer;
 
     public ESPBlockDataScreen(GuiTheme theme, ESPBlockData blockData, Block block, BlockDataSetting<ESPBlockData> setting) {
@@ -119,7 +119,7 @@ public class ESPBlockDataScreen extends WindowScreen {
             firstChangeConsumer.run();
         }
 
-        setting.onChanged();
+        if (setting != null) setting.onChanged();
         blockData.changed();
     }
 }

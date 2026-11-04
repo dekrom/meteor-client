@@ -7,6 +7,7 @@ package meteordevelopment.meteorclient.systems.modules.render.blockesp;
 
 import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.WidgetScreen;
+import meteordevelopment.meteorclient.gui.utils.IScreenFactory;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.BlockDataSetting;
 import meteordevelopment.meteorclient.settings.GenericSetting;
@@ -17,7 +18,7 @@ import meteordevelopment.meteorclient.utils.render.color.SettingColor;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NbtCompound;
 
-public class ESPBlockData implements IGeneric<ESPBlockData>, IChangeable, IBlockData<ESPBlockData> {
+public class ESPBlockData implements IGeneric<ESPBlockData>, IChangeable, IBlockData<ESPBlockData>, IScreenFactory {
     public ShapeMode shapeMode;
     public SettingColor lineColor;
     public SettingColor sideColor;
@@ -44,6 +45,12 @@ public class ESPBlockData implements IGeneric<ESPBlockData>, IChangeable, IBlock
     @Override
     public WidgetScreen createScreen(GuiTheme theme, GenericSetting<ESPBlockData> setting) {
         return new ESPBlockDataScreen(theme, this, setting);
+    }
+
+    // Kept for addons built against upstream's 1.21.8 build
+    @Override
+    public WidgetScreen createScreen(GuiTheme theme) {
+        return new ESPBlockDataScreen(theme, this, (GenericSetting<ESPBlockData>) null);
     }
 
     @Override
