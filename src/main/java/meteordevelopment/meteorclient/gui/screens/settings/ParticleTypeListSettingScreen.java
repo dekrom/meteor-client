@@ -29,8 +29,9 @@ public class ParticleTypeListSettingScreen extends CollectionListSettingScreen<P
         return Names.get(value);
     }
 
+    // Kept for addons built against upstream's 1.21.5 build; every particle type is listed now
     @Override
     protected boolean skipValue(ParticleType<?> value) {
-        return !(value instanceof ParticleEffect);
+        return false;
     }
 }
