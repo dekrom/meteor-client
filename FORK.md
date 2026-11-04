@@ -43,8 +43,9 @@ module is otherwise untouched.
 
 **Outbound requests are allowlisted.** `Http` refuses any request to a host that is not on a
 short list (Mojang session and profile endpoints, TheAltening, and `bep.dek.to`) before a
-connection is opened. Blocked requests come back as a failed response through the normal error
-path rather than throwing, so callers behave as if the endpoint were unreachable.
+connection is opened. Blocked requests come back as a failed response without throwing or reaching
+the caller's error handler, so the features that need another host quietly do nothing: the addon
+update markers on the title screen and the commits screen (GitHub), and `.name-history` (laby.net).
 
 The point of the last one is that it fails closed: a future upstream feature that adds a new
 endpoint gets blocked by default rather than silently starting to phone home after a rebase.
