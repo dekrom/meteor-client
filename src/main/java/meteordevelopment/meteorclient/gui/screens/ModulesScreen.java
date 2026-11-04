@@ -85,7 +85,7 @@ public class ModulesScreen extends TabScreen {
     protected void createSearchW(WContainer w, String text) {
         if (!text.isEmpty()) {
             // Titles
-            List<Pair<Module, String>> modules = Modules.get().searchTitles(text);
+            List<Pair<Module, String>> modules = Modules.get().searchTitlesWithAliases(text);
 
             if (!modules.isEmpty()) {
                 WSection section = w.add(theme.section("Modules")).expandX().widget();

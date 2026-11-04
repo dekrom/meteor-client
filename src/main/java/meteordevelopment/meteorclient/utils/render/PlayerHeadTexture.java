@@ -30,6 +30,22 @@ public class PlayerHeadTexture extends Texture {
         this.needsRotate = needsRotate;
     }
 
+    // Kept for addons built against upstream's 1.21.5 build
+    public PlayerHeadTexture(String url) {
+        super(8, 8, TextureFormat.RGBA8, FilterMode.NEAREST, FilterMode.NEAREST);
+
+        byte[] head;
+        try {
+            head = downloadHead(url);
+        } catch (IOException e) {
+            MeteorClient.LOG.error("Could not download player head from {}.", url, e);
+            return;
+        }
+
+        upload(BufferUtils.createByteBuffer(head.length).put(head));
+        needsRotate = true;
+    }
+
     public PlayerHeadTexture() {
         super(8, 8, TextureFormat.RGBA8, FilterMode.NEAREST, FilterMode.NEAREST);
 

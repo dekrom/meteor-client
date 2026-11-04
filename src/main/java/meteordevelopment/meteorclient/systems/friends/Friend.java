@@ -71,7 +71,7 @@ public class Friend implements ISerializable<Friend>, Comparable<Friend> {
             name = res.body().name;
             id = UndashedUuid.fromStringLenient(res.body().id);
 
-            byte[] head = PlayerHeadUtils.fetchHead(id);
+            byte[] head = PlayerHeadUtils.fetchHeadBytes(id);
             mc.execute(() -> {
                 if (head != null) headTexture = new PlayerHeadTexture(head, true);
             });

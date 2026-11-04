@@ -27,6 +27,11 @@ public class WMeteorModule extends WPressable implements MeteorWidget {
 
     private double animationProgress2;
 
+    // Kept for addons built against upstream's 1.21.5 build
+    public WMeteorModule(Module module) {
+        this(module, module.title);
+    }
+
     public WMeteorModule(Module module, String title) {
         this.module = module;
         this.title = title;
