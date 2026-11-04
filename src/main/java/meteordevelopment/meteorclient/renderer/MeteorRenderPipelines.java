@@ -16,6 +16,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.UniformType;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
@@ -241,4 +242,12 @@ public abstract class MeteorRenderPipelines {
     }
 
     private MeteorRenderPipelines() {}
+
+    // Pipelines are now precompiled after ShaderLoader applies; kept for addons built against the 1.21.5 jar.
+    public static class Reloader implements SynchronousResourceReloader {
+        @Override
+        public void reload(ResourceManager manager) {
+            precompile();
+        }
+    }
 }
