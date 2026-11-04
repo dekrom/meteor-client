@@ -124,6 +124,9 @@ public class Notebot extends Module {
         .build()
     );
 
+    // Kept for addons built against upstream's 1.21.4 build; transposing replaced rounding for out of range notes
+    public final Setting<Boolean> roundOutOfRange = transposeOutOfRange;
+
     public final Setting<Boolean> swingArm = sgGeneral.add(new BoolSetting.Builder()
         .name("swing-arm")
         .description("Should swing arm on hit")
