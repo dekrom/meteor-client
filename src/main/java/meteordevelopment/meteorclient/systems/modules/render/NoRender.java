@@ -514,6 +514,11 @@ public class NoRender extends Module {
         return isActive() && particles.get().contains(type);
     }
 
+    // Kept for addons built against upstream's 1.21.4 build; block-break particles are now an entry in the particles list
+    public boolean noBlockBreakParticles() {
+        return noParticle(ParticleTypes.BLOCK);
+    }
+
     public boolean noBlockBreakOverlay() {
         return isActive() && noBlockBreakOverlay.get();
     }
