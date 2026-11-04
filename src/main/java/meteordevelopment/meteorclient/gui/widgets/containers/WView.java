@@ -25,6 +25,8 @@ public abstract class WView extends WVerticalList {
     private boolean moveAfterPositionWidgets;
 
     protected boolean handleMouseOver;
+    // Kept for themes built against upstream's 1.21.4 build; mirrors focused, which now tracks the handle drag
+    protected boolean handlePressed;
 
     @Override
     public void init() {
@@ -189,6 +191,12 @@ public abstract class WView extends WVerticalList {
 
     protected double handleY() {
         return y + (height - handleHeight()) * (scroll / (actualHeight - height));
+    }
+
+    @Override
+    public void setFocused(boolean focused) {
+        super.setFocused(focused);
+        handlePressed = focused;
     }
 
     public boolean isWidgetInView(WWidget widget) {
