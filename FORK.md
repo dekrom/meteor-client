@@ -9,7 +9,7 @@ be mistaken for one.
 
 ## Bug fixes
 
-All of these are open pull requests against upstream. They live here so the fixes are usable
+All of these were sent upstream as pull requests. They live here so the fixes are usable
 before they are merged, and they will be dropped from this branch as they land.
 
 | Fix | PR |
@@ -17,7 +17,7 @@ before they are merged, and they will be dropped from this branch as they land.
 | Map hud element scaled by the gui scale twice, so it cannot be positioned at any scale other than 1 | [#6624](https://github.com/MeteorDevelopment/meteor-client/pull/6624) |
 | Proxy checker races on `isEmpty()`/`take()` and parks its workers, wedging refresh for the session | [#6625](https://github.com/MeteorDevelopment/meteor-client/pull/6625) |
 | Blur closes its texture views but not the textures, leaking ~11 MB of VRAM per resize event | [#6626](https://github.com/MeteorDevelopment/meteor-client/pull/6626) |
-| A failed font load leaves the renderer destroyed, so every gui text draw throws until restart | [#6627](https://github.com/MeteorDevelopment/meteor-client/pull/6627) |
+| A failed font load leaves the renderer destroyed, so every gui text draw throws until restart | [#6627](https://github.com/MeteorDevelopment/meteor-client/pull/6627), closed upstream, kept here |
 | Chams leaves the polygon offset enabled when NoRender cancels a dead entity | [#6628](https://github.com/MeteorDevelopment/meteor-client/pull/6628) |
 | ElytraFly Bounce recasts when *any* living entity stops gliding, sending a stray packet | [#6629](https://github.com/MeteorDevelopment/meteor-client/pull/6629) |
 | Config saves are not atomic when `/tmp` is a separate mount, which truncates the file first | [#6630](https://github.com/MeteorDevelopment/meteor-client/pull/6630) |
