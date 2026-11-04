@@ -9,6 +9,7 @@ import meteordevelopment.meteorclient.gui.GuiTheme;
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.utils.misc.Names;
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registries;
 
@@ -29,9 +30,8 @@ public class ParticleTypeListSettingScreen extends RegistryListSettingScreen<Par
         return Names.get(value);
     }
 
-    // Kept for addons built against upstream's 1.21.4 build; every particle type is listed now
     @Override
     protected boolean skipValue(ParticleType<?> value) {
-        return false;
+        return !(value instanceof ParticleEffect);
     }
 }
