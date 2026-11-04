@@ -37,6 +37,12 @@ public class PostProcessShaders {
         ENTITY_OUTLINE.submitVertices();
     }
 
+    // Kept for addons built against upstream's 1.21.8 build
+    public static void endRender() {
+        CHAMS.endRender();
+        ENTITY_OUTLINE.endRender();
+    }
+
     @EventHandler
     private static void onRender(Render2DEvent event) {
         CHAMS.render();

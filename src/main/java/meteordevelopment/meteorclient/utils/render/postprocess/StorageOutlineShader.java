@@ -1,21 +1,46 @@
 package meteordevelopment.meteorclient.utils.render.postprocess;
 
+import meteordevelopment.meteorclient.mixininterface.IMinecraftClient;
 import meteordevelopment.meteorclient.renderer.MeshRenderer;
 import meteordevelopment.meteorclient.renderer.MeteorRenderPipelines;
 import meteordevelopment.meteorclient.systems.modules.Modules;
 import meteordevelopment.meteorclient.systems.modules.render.StorageESP;
+import net.minecraft.client.gl.Framebuffer;
+import net.minecraft.entity.Entity;
+
+import static meteordevelopment.meteorclient.MeteorClient.mc;
 
 public class StorageOutlineShader extends PostProcessShader {
     private static StorageESP storageESP;
+    private Framebuffer mcFramebuffer;
 
     public StorageOutlineShader() {
         super(MeteorRenderPipelines.POST_OUTLINE);
+    }
+
+    // Kept for addons built against upstream's 1.21.8 build: only endRender(Runnable) reaches these, so its draw lands in this shader's framebuffer
+    @Override
+    protected void preDraw() {
+        mcFramebuffer = mc.getFramebuffer();
+        ((IMinecraftClient) mc).meteor$setFramebuffer(framebuffer);
+    }
+
+    @Override
+    protected void postDraw() {
+        ((IMinecraftClient) mc).meteor$setFramebuffer(mcFramebuffer);
+        mcFramebuffer = null;
     }
 
     @Override
     protected boolean shouldDraw() {
         if (storageESP == null) storageESP = Modules.get().get(StorageESP.class);
         return storageESP.isShader();
+    }
+
+    // Kept for addons built against upstream's 1.21.8 build
+    @Override
+    public boolean shouldDraw(Entity entity) {
+        return true;
     }
 
     @Override
