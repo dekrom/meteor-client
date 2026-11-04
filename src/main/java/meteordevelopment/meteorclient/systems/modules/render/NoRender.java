@@ -230,6 +230,13 @@ public class NoRender extends Module {
         .build()
     );
 
+    private final Setting<Boolean> noBlockBreakParticles = sgWorld.add(new BoolSetting.Builder()
+        .name("block-break-particles")
+        .description("Disables rendering of block-break particles.")
+        .defaultValue(false)
+        .build()
+    );
+
     private final Setting<Boolean> noBlockBreakOverlay = sgWorld.add(new BoolSetting.Builder()
         .name("block-break-overlay")
         .description("Disables rendering of block-break overlay.")
@@ -510,13 +517,8 @@ public class NoRender extends Module {
         return isActive() && noSignText.get();
     }
 
-    public boolean noParticle(ParticleType<?> type) {
-        return isActive() && particles.get().contains(type);
-    }
-
-    // Kept for addons built against upstream 1.21.8; block-break particles are now an entry in the particles list
     public boolean noBlockBreakParticles() {
-        return noParticle(ParticleTypes.BLOCK);
+        return isActive() && noBlockBreakParticles.get();
     }
 
     public boolean noBlockBreakOverlay() {

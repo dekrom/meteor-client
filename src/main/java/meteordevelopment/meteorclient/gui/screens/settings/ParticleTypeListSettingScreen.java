@@ -10,6 +10,7 @@ import meteordevelopment.meteorclient.gui.screens.settings.base.CollectionListSe
 import meteordevelopment.meteorclient.gui.widgets.WWidget;
 import meteordevelopment.meteorclient.settings.Setting;
 import meteordevelopment.meteorclient.utils.misc.Names;
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleType;
 import net.minecraft.registry.Registries;
 
@@ -20,10 +21,9 @@ public class ParticleTypeListSettingScreen extends CollectionListSettingScreen<P
         super(theme, "Select Particles", setting, setting.get(), Registries.PARTICLE_TYPE);
     }
 
-    // Kept for addons built against upstream's 1.21.8 build; every particle type is listed now
     @Override
     protected boolean includeValue(ParticleType<?> value) {
-        return true;
+        return value instanceof ParticleEffect;
     }
 
     @Override
