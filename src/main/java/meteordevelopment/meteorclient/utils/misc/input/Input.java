@@ -88,4 +88,12 @@ public class Input {
         // nothing extra is held, discounting capslock & numlock
         return (currentMods & MOD_KEYS & ~desiredMask) == 0;
     }
+
+    // Kept for addons compiled against the earlier 26.3 builds of this fork: whether exactly the modifiers in mask are held
+    public static boolean modifiersMatch(int modifiers, int mask) {
+        int[] groups = {InputConstants.MOD_SHIFT, InputConstants.MOD_CONTROL, InputConstants.MOD_ALT, InputConstants.MOD_SUPER};
+        int count = 0;
+        for (int group : groups) if ((mask & group) != 0) groups[count++] = group;
+        return modsMatch(modifiers, java.util.Arrays.copyOf(groups, count));
+    }
 }
