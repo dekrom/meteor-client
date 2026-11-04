@@ -20,6 +20,12 @@ public class ParticleTypeListSettingScreen extends CollectionListSettingScreen<P
         super(theme, "Select Particles", setting, setting.get(), Registries.PARTICLE_TYPE);
     }
 
+    // Kept for addons built against upstream's 1.21.8 build; every particle type is listed now
+    @Override
+    protected boolean includeValue(ParticleType<?> value) {
+        return true;
+    }
+
     @Override
     protected WWidget getValueWidget(ParticleType<?> value) {
         return theme.label(Names.get(value));
