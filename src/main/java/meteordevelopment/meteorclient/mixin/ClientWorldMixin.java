@@ -14,7 +14,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
@@ -49,11 +48,11 @@ public abstract class ClientWorldMixin {
 
     @Inject(method = "addBlockBreakParticles", at = @At("HEAD"), cancellable = true)
     private void onAddBlockBreakParticles(BlockPos blockPos, BlockState state, CallbackInfo info) {
-        if (Modules.get().get(NoRender.class).noParticle(ParticleTypes.BLOCK)) info.cancel();
+        if (Modules.get().get(NoRender.class).noBlockBreakParticles()) info.cancel();
     }
 
     @Inject(method = "spawnBlockBreakingParticle", at = @At("HEAD"), cancellable = true)
     private void onAddBlockBreakingParticles(BlockPos blockPos, Direction direction, CallbackInfo info) {
-        if (Modules.get().get(NoRender.class).noParticle(ParticleTypes.BLOCK)) info.cancel();
+        if (Modules.get().get(NoRender.class).noBlockBreakParticles()) info.cancel();
     }
 }
