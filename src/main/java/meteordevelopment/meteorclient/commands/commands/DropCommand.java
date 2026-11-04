@@ -12,11 +12,13 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import meteordevelopment.meteorclient.commands.Command;
 import meteordevelopment.meteorclient.utils.player.InvUtils;
+import meteordevelopment.meteorclient.utils.player.SlotUtils;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.ItemStackArgumentType;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
@@ -90,12 +92,13 @@ public class DropCommand extends Command {
             if (invStack.isEmpty() || stack.getItem() != invStack.getItem()) continue;
 
             int dropCount = Math.min(amount, invStack.getCount());
+            int slot = i == PlayerInventory.OFF_HAND_SLOT ? SlotUtils.OFFHAND : i;
 
             if (dropCount == invStack.getCount()) {
-                InvUtils.drop().slot(i);
+                InvUtils.drop().slot(slot);
             } else {
                 for (int j = 0; j < dropCount; j++) {
-                    InvUtils.dropOne().slot(i);
+                    InvUtils.dropOne().slot(slot);
                 }
             }
 
