@@ -51,6 +51,23 @@ update markers on the title screen and the commits screen (GitHub), and `.name-h
 The point of the last one is that it fails closed: a future upstream feature that adds a new
 endpoint gets blocked by default rather than silently starting to phone home after a rebase.
 
+## Other fixes
+
+Fixes this fork carries that are not in the table above.
+
+- Trail crashed on particle types that need parameters
+- Better Chat timestamps crashed on a fresh install until the seconds setting was changed once
+
+## Later upstream fixes
+
+Upstream stopped building Minecraft 26.2 at `2385f7b4b`. This branch also carries the upstream fixes and
+small improvements made since then that apply to 26.2, cherry-picked with their original authors and
+adapted where the code differs. `git log --grep "cherry picked from"` lists them, and so do the release
+notes. Version updates, refactors, new modules and large rewrites were not taken.
+
+The branch stays compatible with addons built against upstream's last 26.2 build: where a back-ported
+change removed or changed something an addon can call, the old member is kept as a delegate.
+
 ## Building
 
 ```bash
