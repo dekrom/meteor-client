@@ -48,7 +48,9 @@ public class Trail extends Module {
             && mc.player.getZ() == mc.player.zo) return;
 
         for (ParticleType<?> particleType : particles.get()) {
-            mc.level.addParticle((ParticleOptions) particleType, mc.player.getX(), mc.player.getY(), mc.player.getZ(), 0, 0, 0);
+            // The particle list offers every particle type; ones that need parameters cannot be spawned bare
+            if (!(particleType instanceof ParticleOptions options)) continue;
+            mc.level.addParticle(options, mc.player.getX(), mc.player.getY(), mc.player.getZ(), 0, 0, 0);
         }
     }
 }
