@@ -20,7 +20,7 @@ public class AddMicrosoftAccountScreen extends AddAccountScreen {
 
     @Override
     public void initWidgets() {
-        String url = MicrosoftLogin.getRefreshToken(refreshToken -> {
+        String url = MicrosoftLogin.startLogin(refreshToken -> {
 
             if (refreshToken != null) {
                 MicrosoftAccount account = new MicrosoftAccount(refreshToken);

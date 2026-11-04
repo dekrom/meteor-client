@@ -50,7 +50,12 @@ public class MicrosoftLogin {
     private static HttpServer server;
     private static Consumer<String> callback;
 
-    public static String getRefreshToken(Consumer<String> callback) {
+    // Kept for addons built against upstream's 1.21.4 build
+    public static void getRefreshToken(Consumer<String> callback) {
+        startLogin(callback);
+    }
+
+    public static String startLogin(Consumer<String> callback) {
         MicrosoftLogin.callback = callback;
 
         startServer();

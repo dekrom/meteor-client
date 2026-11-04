@@ -306,6 +306,10 @@ public class BlockUtils {
             || block instanceof TrapdoorBlock;
     }
 
+    // Kept for addons built against upstream's 1.21.4 build
+    public static MobSpawn isValidMobSpawn(BlockPos blockPos, boolean newMobSpawnLightLevel) {
+        return isValidMobSpawn(blockPos, mc.world.getBlockState(blockPos), newMobSpawnLightLevel ? 0 : 7);
+    }
 
     public static MobSpawn isValidMobSpawn(BlockPos blockPos, BlockState blockState, int spawnLightLimit) {
         boolean snow = blockState.getBlock() instanceof SnowBlock && blockState.get(SnowBlock.LAYERS) == 1;
@@ -332,6 +336,12 @@ public class BlockUtils {
         if (block instanceof StairsBlock && blockState.get(StairsBlock.HALF) == BlockHalf.TOP) return true;
 
         return blockState.isOpaqueFullCube();
+    }
+
+    // Kept for addons built against upstream's 1.21.4 build
+    public static boolean topSurface(BlockState blockState) {
+        if (blockState.getBlock() instanceof SlabBlock && blockState.get(SlabBlock.TYPE) == SlabType.TOP) return true;
+        else return blockState.getBlock() instanceof StairsBlock && blockState.get(StairsBlock.HALF) == BlockHalf.TOP;
     }
 
     // Finds the best block direction to get when interacting with the block.
