@@ -421,10 +421,10 @@ public class CrystalAura extends Module {
 
     // Render
 
-    public final Setting<SwingMode> swingMode = sgRender.add(new EnumSetting.Builder<SwingMode>()
+    public final Setting<CrystalAura.SwingMode> swingMode = sgRender.add(new EnumSetting.Builder<CrystalAura.SwingMode>()
         .name("swing-mode")
         .description("How to swing when placing.")
-        .defaultValue(SwingMode.Both)
+        .defaultValue(CrystalAura.SwingMode.Both)
         .build()
     );
 
