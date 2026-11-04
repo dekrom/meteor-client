@@ -17,7 +17,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: release
+  group: release-${{ github.ref_name }}
   cancel-in-progress: false
 
 jobs:
@@ -150,7 +150,8 @@ jobs:
               echo
               echo "### Since $PREVIOUS"
               echo
-              changes=$(git log --reverse --format='- %s' "$PREVIOUS..HEAD")
+              # a rebase leaves the previous tag off this branch; skip commits it already shipped
+              changes=$(git log --reverse --cherry-pick --right-only --no-merges --format='- %s' "$PREVIOUS...HEAD")
               if [ -n "$changes" ]; then
                 echo "$changes"
               else
