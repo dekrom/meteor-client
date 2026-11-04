@@ -40,7 +40,7 @@ public class AccountCache implements ISerializable<AccountCache> {
         loadingHead = true;
 
         MeteorExecutor.execute(() -> {
-            byte[] head = PlayerHeadUtils.fetchHead(UndashedUuid.fromStringLenient(uuid));
+            byte[] head = PlayerHeadUtils.fetchHeadBytes(UndashedUuid.fromStringLenient(uuid));
 
             mc.execute(() -> {
                 if (head != null) headTexture = new PlayerHeadTexture(head, true);

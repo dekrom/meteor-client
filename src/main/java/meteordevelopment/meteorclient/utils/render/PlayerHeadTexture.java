@@ -27,6 +27,20 @@ public class PlayerHeadTexture extends Texture {
         this.needsRotate = needsRotate;
     }
 
+    // Kept for addons built against upstream's 1.21.4 build
+    public PlayerHeadTexture(String url) {
+        byte[] head;
+        try {
+            head = downloadHead(url);
+        } catch (IOException e) {
+            MeteorClient.LOG.error("Could not download player head from {}.", url, e);
+            return;
+        }
+
+        upload(BufferUtils.createByteBuffer(head.length).put(head));
+        needsRotate = true;
+    }
+
     public PlayerHeadTexture() {
         try (InputStream inputStream = mc.getResourceManager().getResource(MeteorClient.identifier("textures/steve.png")).get().getInputStream()) {
             ByteBuffer data = TextureUtil.readResource(inputStream);

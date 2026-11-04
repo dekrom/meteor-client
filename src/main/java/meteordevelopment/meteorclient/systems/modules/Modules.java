@@ -169,7 +169,14 @@ public class Modules extends System<Modules> {
         }
     }
 
-    public List<Pair<Module, String>> searchTitles(String text) {
+    // Kept for addons built against upstream's 1.21.4 build
+    public Set<Module> searchTitles(String text) {
+        Set<Module> modules = new LinkedHashSet<>();
+        for (Pair<Module, String> p : searchTitlesWithAliases(text)) modules.add(p.getLeft());
+        return modules;
+    }
+
+    public List<Pair<Module, String>> searchTitlesWithAliases(String text) {
         Map<Pair<Module, String>, Integer> modules = new HashMap<>();
 
         for (Module module : this.moduleInstances.values()) {
