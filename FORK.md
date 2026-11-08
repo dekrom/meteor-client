@@ -32,6 +32,9 @@ Fixes this fork carries that are not in the table above.
 
 - Trail crashed on particle types that need parameters
 - Better Chat timestamps crashed on a fresh install until the seconds setting was changed once
+- A bind with modifiers also toggled the module bound to the plain key (upstream merged this for 26.2)
+- The Sodium fluid opacity hook failed outside the dev environment, because its unmapped target descriptor never matched production Sodium
+- AutoEat never ate from the offhand, and BowSpam and `.drop` swapped a hotbar slot for an offhand stack, after back-ports that read the offhand as inventory index 40 (`SlotUtils.OFFHAND` stays 45 here)
 
 ## Network changes
 
@@ -57,6 +60,22 @@ update markers on the title screen and the commits screen (GitHub), and `.name-h
 
 The point of the last one is that it fails closed: a future upstream feature that adds a new
 endpoint gets blocked by default rather than silently starting to phone home after a rebase.
+
+## Later upstream fixes
+
+Upstream stopped building Minecraft 1.21.4 at `a96efdcdd`. This branch also carries the upstream fixes and
+small improvements made since then that apply to 1.21.4, cherry-picked with their original authors and
+adapted where the code differs. `git log --grep "cherry picked from"` lists them, and so do the release
+notes. Version updates, refactors and large rewrites were not taken.
+
+The branch stays compatible with addons built against upstream's last 1.21.4 build: where a back-ported
+change removed or changed something an addon can call, the old member is kept as a delegate. A few
+upstream changes were left out on purpose:
+
+- `SlotUtils.OFFHAND` stays 45, and AutoEat still prefers hotbar food unless the offhand food is better.
+- Upstream's Surround rewrite is not taken, because addons hook the old Surround methods.
+- The sign-edit translation protection stays. Upstream later removed it; this build still hides meteor-client translation keys from servers that probe for them with signs.
+- Particle list settings keep offering simple particles only; upstream later offered every particle type, which addons for this version do not expect.
 
 ## Building
 
