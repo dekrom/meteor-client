@@ -1,20 +1,22 @@
 # What this fork changes
 
-A build of [Meteor Client](https://github.com/MeteorDevelopment/meteor-client) with a handful of
-bug fixes and the calls home removed. Everything here sits on top of upstream's last build for
-Minecraft 1.21.4 (`a96efdcdd`, build 42 on the Meteor maven), so it is a rebase away from vanilla
-Meteor at any point.
+A build of [Meteor Client](https://github.com/MeteorDevelopment/meteor-client) with the calls home
+removed, on top of upstream's last build for Minecraft 1.21.4 (`a96efdcdd`, build 42 on the Meteor
+maven). It carries the fixes below, the network changes, and the later upstream commits that apply
+to 1.21.4, features included, back-ported from 1.21.5 through `master`; the exact list is in each
+release's notes.
 
 This is **not** an official Meteor build. Releases are versioned `1.21.4-bephax.<n>` so they cannot
 be mistaken for one.
 
 ## Bug fixes
 
-The same fixes the 26.3 branch carries, limited to the bugs that exist on Minecraft 1.21.4.
-Upstream no longer builds 1.21.4, so they stay here for good.
+The fixes this fork sent upstream as pull requests, limited to the bugs that exist on Minecraft
+1.21.4. Upstream no longer builds 1.21.4, so they stay here for good.
 
 | Fix | PR |
 |---|---|
+| Proxy checker races on `isEmpty()`/`take()` and parks its workers, wedging refresh for the session | [#6625](https://github.com/MeteorDevelopment/meteor-client/pull/6625) |
 | A failed font load leaves the renderer destroyed, so every gui text draw throws until restart | [#6627](https://github.com/MeteorDevelopment/meteor-client/pull/6627), closed upstream, kept here |
 | Chams leaves the polygon offset enabled when NoRender cancels a dead entity | [#6628](https://github.com/MeteorDevelopment/meteor-client/pull/6628) |
 | ElytraFly Bounce recasts when *any* living entity stops gliding, sending a stray packet | [#6629](https://github.com/MeteorDevelopment/meteor-client/pull/6629) |
@@ -23,6 +25,13 @@ Upstream no longer builds 1.21.4, so they stay here for good.
 | Bold Italic fonts are saved as `"Bold Italic"` and loaded with `valueOf`, so they never persist | [#6632](https://github.com/MeteorDevelopment/meteor-client/pull/6632) |
 | The enchantment name cache is the one cache not cleared on resource reload | [#6634](https://github.com/MeteorDevelopment/meteor-client/pull/6634) |
 | Hud text width counts the shadow offset twice, padding every shadowed element | [#6635](https://github.com/MeteorDevelopment/meteor-client/pull/6635) |
+
+## Other fixes
+
+Fixes this fork carries that are not in the table above.
+
+- Trail crashed on particle types that need parameters
+- Better Chat timestamps crashed on a fresh install until the seconds setting was changed once
 
 ## Network changes
 
