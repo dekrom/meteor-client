@@ -15,6 +15,7 @@ Upstream no longer builds 1.21.5, so they stay here for good.
 
 | Fix | PR |
 |---|---|
+| Proxy checker races on `isEmpty()`/`take()` and parks its workers, wedging refresh for the session | [#6625](https://github.com/MeteorDevelopment/meteor-client/pull/6625) |
 | A failed font load leaves the renderer destroyed, so every gui text draw throws until restart | [#6627](https://github.com/MeteorDevelopment/meteor-client/pull/6627), closed upstream, kept here |
 | Chams leaves the polygon offset enabled when NoRender cancels a dead entity | [#6628](https://github.com/MeteorDevelopment/meteor-client/pull/6628) |
 | ElytraFly Bounce recasts when *any* living entity stops gliding, sending a stray packet | [#6629](https://github.com/MeteorDevelopment/meteor-client/pull/6629) |
@@ -53,8 +54,11 @@ endpoint gets blocked by default rather than silently starting to phone home aft
 
 Fixes this fork carries that are not in the table above.
 
+- Trail crashed on particle types that need parameters
 - Better Chat timestamps crashed on a fresh install until the seconds setting was changed once
 - A bind with modifiers also toggled the module bound to the plain key (upstream merged this for 26.2)
+- The Sodium fluid opacity hook failed outside the dev environment, because its unmapped target descriptor never matched production Sodium
+- AutoEat never ate from the offhand, and BowSpam and `.drop` swapped a hotbar slot for an offhand stack, after back-ports that read the offhand as inventory index 40 (`SlotUtils.OFFHAND` stays 45 here)
 
 ## Later upstream fixes
 
